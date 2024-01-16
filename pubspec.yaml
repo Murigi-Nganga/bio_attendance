@@ -7,13 +7,31 @@ environment:
   sdk: '>=3.2.4 <4.0.0'
 
 dependencies:
+  cloud_firestore: ^4.14.0
+  firebase_auth: ^4.16.0
+  firebase_core: ^2.24.2
   flutter:
     sdk: flutter
+  multi_select_flutter: ^4.1.3
+  provider: ^6.1.1
+  shared_preferences: ^2.2.2
 
 dev_dependencies:
+  flutter_lints: ^2.0.0
   flutter_test:
     sdk: flutter
-  flutter_lints: ^2.0.0
 
 flutter:
   uses-material-design: true
+
+  assets:
+    - assets/images/admin.png
+    - assets/images/lecturer.png
+    - assets/images/student.png
+    - assets/images/search.png
+    - assets/images/add_user.png
+
+  fonts:
+    - family: Quicksand
+      fonts:
+        - asset: assets/fonts/Quicksand.ttf

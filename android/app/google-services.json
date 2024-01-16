@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "112340355748",
+    "project_id": "bio-metric-attendance-app",
+    "storage_bucket": "bio-metric-attendance-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:112340355748:android:a330861cdebfabe0f4b431",
+        "android_client_info": {
+          "package_name": "com.example.bio_attendance"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyARMkO5DaU3H19ZCXargNWwPuQ-KvHep-c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
