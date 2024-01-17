@@ -4,6 +4,16 @@ import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;
 import 'package:flutter/foundation.dart'
     show defaultTargetPlatform, kIsWeb, TargetPlatform;
 
+/// Default [FirebaseOptions] for use with your Firebase apps.
+///
+/// Example:
+/// ```dart
+/// import 'firebase_options.dart';
+/// // ...
+/// await Firebase.initializeApp(
+///   options: DefaultFirebaseOptions.currentPlatform,
+/// );
+/// ```
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
@@ -34,37 +44,37 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyDY-fJ4ePbBvfuO_Do0mwFEqySG9bGye78',
-    appId: '1:112340355748:web:389096c9ea9c3cbff4b431',
-    messagingSenderId: '112340355748',
-    projectId: 'bio-metric-attendance-app',
-    authDomain: 'bio-metric-attendance-app.firebaseapp.com',
-    storageBucket: 'bio-metric-attendance-app.appspot.com',
+    apiKey: 'AIzaSyDe8H4ozE1MBGbij_OTokiaRZQ8btY2y-o',
+    appId: '1:623015467302:web:aadaa12dafb2fedb5249e7',
+    messagingSenderId: '623015467302',
+    projectId: 'bio-attendance-5e701',
+    authDomain: 'bio-attendance-5e701.firebaseapp.com',
+    storageBucket: 'bio-attendance-5e701.appspot.com',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyARMkO5DaU3H19ZCXargNWwPuQ-KvHep-c',
-    appId: '1:112340355748:android:a330861cdebfabe0f4b431',
-    messagingSenderId: '112340355748',
-    projectId: 'bio-metric-attendance-app',
-    storageBucket: 'bio-metric-attendance-app.appspot.com',
+    apiKey: 'AIzaSyA-31c0F11j53fEZmcLI5cDmvHwdudYNdo',
+    appId: '1:623015467302:android:d9157eb6ce5dfec85249e7',
+    messagingSenderId: '623015467302',
+    projectId: 'bio-attendance-5e701',
+    storageBucket: 'bio-attendance-5e701.appspot.com',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyCwym47bRd-ItIgb9Jv-Lz0jrT_x8aD0KM',
-    appId: '1:112340355748:ios:11e13a2d5696b234f4b431',
-    messagingSenderId: '112340355748',
-    projectId: 'bio-metric-attendance-app',
-    storageBucket: 'bio-metric-attendance-app.appspot.com',
+    apiKey: 'AIzaSyCFyYUQs9wpjRNFMcWxph57L_fAvmlbLlY',
+    appId: '1:623015467302:ios:fedfa91609b8f5d15249e7',
+    messagingSenderId: '623015467302',
+    projectId: 'bio-attendance-5e701',
+    storageBucket: 'bio-attendance-5e701.appspot.com',
     iosBundleId: 'com.example.bioAttendance',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyCwym47bRd-ItIgb9Jv-Lz0jrT_x8aD0KM',
-    appId: '1:112340355748:ios:957311af6698c45af4b431',
-    messagingSenderId: '112340355748',
-    projectId: 'bio-metric-attendance-app',
-    storageBucket: 'bio-metric-attendance-app.appspot.com',
+    apiKey: 'AIzaSyCFyYUQs9wpjRNFMcWxph57L_fAvmlbLlY',
+    appId: '1:623015467302:ios:6367533d22dd6e195249e7',
+    messagingSenderId: '623015467302',
+    projectId: 'bio-attendance-5e701',
+    storageBucket: 'bio-attendance-5e701.appspot.com',
     iosBundleId: 'com.example.bioAttendance.RunnerTests',
   );
 }

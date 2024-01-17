@@ -1,7 +1,7 @@
 {
   "file_generated_by": "FlutterFire CLI",
   "purpose": "FirebaseAppID & ProjectID for this Firebase app in this directory",
-  "GOOGLE_APP_ID": "1:112340355748:ios:957311af6698c45af4b431",
-  "FIREBASE_PROJECT_ID": "bio-metric-attendance-app",
-  "GCM_SENDER_ID": "112340355748"
+  "GOOGLE_APP_ID": "1:623015467302:ios:6367533d22dd6e195249e7",
+  "FIREBASE_PROJECT_ID": "bio-attendance-5e701",
+  "GCM_SENDER_ID": "623015467302"
 }
