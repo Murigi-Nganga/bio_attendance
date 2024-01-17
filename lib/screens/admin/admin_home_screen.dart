@@ -1,9 +1,6 @@
-import 'package:bio_attendance/routes/app_routes.dart';
 import 'package:bio_attendance/screens/admin/tabs/lecturers_tab.dart';
 import 'package:bio_attendance/screens/admin/tabs/reports_tab.dart';
 import 'package:bio_attendance/screens/admin/tabs/students_tab.dart';
-import 'package:bio_attendance/services/auth/auth_service.dart';
-import 'package:bio_attendance/utilities/enums/app_enums.dart';
 import 'package:flutter/material.dart';
 
 class AdminHomeScreen extends StatefulWidget {
@@ -15,14 +12,7 @@ class AdminHomeScreen extends StatefulWidget {
 
 class _AdminHomeScreenState extends State<AdminHomeScreen> {
   void _handleLogout(BuildContext context) async {
-    await AuthService.firebase()
-        .logOut()
-        .then((_) => Navigator.pushNamedAndRemoveUntil(
-              context,
-              loginRoute,
-              (route) => false,
-              arguments: {'role': Role.admin},
-            ));
+    //TODO: Add impl to clear shared prefs of the saved user data
   }
 
   int _currentIndex = 0;

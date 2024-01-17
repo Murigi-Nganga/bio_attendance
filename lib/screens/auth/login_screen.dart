@@ -1,8 +1,6 @@
 import 'package:bio_attendance/routes/app_routes.dart';
-import 'package:bio_attendance/services/auth/auth_exceptions.dart';
-import 'package:bio_attendance/services/auth/auth_service.dart';
-import 'package:bio_attendance/services/crud/database_service.dart';
-import 'package:bio_attendance/services/crud/local_storage.dart';
+import 'package:bio_attendance/services/database_service.dart';
+import 'package:bio_attendance/services/local_storage.dart';
 import 'package:bio_attendance/utilities/dialogs/error_dialog.dart';
 import 'package:bio_attendance/utilities/enums/app_enums.dart';
 import 'package:bio_attendance/utilities/extenstions/string_extensions.dart';
@@ -95,47 +93,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   onPressed: () async {
                     final email = _email.text;
                     final password = _password.text;
-                    try {
-                      final user = await AuthService.firebase().logIn(
-                        email: email,
-                        password: password,
-                      );
-      
-                      if (await DatabaseService().isRoleCorrect(role, user.email) ==
-                          false) {
-                        await AuthService.firebase().logOut();
-                        if (!mounted) return;
-                        showErrorDialog(
-                          context,
-                          'Ensure you are logged in as the correct user',
-                        );
-                        return;
-                      }
-                
-                      await LocalStorage().saveUserRole(role.name);
-                
-                      if (!mounted) return;
-                      // Route to lec, admn or student
-                      Navigator.of(context).pushNamedAndRemoveUntil(
-                        homeRoute,
-                        (route) => false,
-                      );
-                    } on UserNotFoundAuthException {
-                      await showErrorDialog(
-                        context,
-                        'User not found',
-                      );
-                    } on WrongPasswordAuthException {
-                      await showErrorDialog(
-                        context,
-                        'Wrong credentials',
-                      );
-                    } on GenericAuthException {
-                      await showErrorDialog(
-                        context,
-                        'Authentication error',
-                      );
-                    }
+
+                    //TODO: Correct the login logic
                   },
                   child: const Text('Login'),
                 ),

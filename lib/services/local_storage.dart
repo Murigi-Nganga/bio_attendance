@@ -10,7 +10,7 @@ class LocalStorage {
   }
 
   // User role persistence
-  Future<void> saveUserRole(String role) async {
+  Future<void> saveUser(String role) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setString('userRole', role);
   }

@@ -1,5 +1,4 @@
 import 'package:bio_attendance/providers/database_provider.dart';
-import 'package:bio_attendance/services/auth/auth_exceptions.dart';
 import 'package:bio_attendance/utilities/dialogs/error_dialog.dart';
 import 'package:bio_attendance/utilities/theme/gaps.dart';
 import 'package:flutter/material.dart';
@@ -153,26 +152,8 @@ class _RegisterViewState extends State<AddStudentScreen> {
                           ).then((_) => _resetForm());
 
                           if (!mounted) return;
-                        } on WeakPasswordAuthException {
-                          await showErrorDialog(
-                            context,
-                            'Weak password',
-                          );
-                        } on EmailAlreadyInUseAuthException {
-                          await showErrorDialog(
-                            context,
-                            'Email is already in use',
-                          );
-                        } on InvalidEmailAuthException {
-                          await showErrorDialog(
-                            context,
-                            'This is an invalid email address',
-                          );
-                        } on GenericAuthException {
-                          await showErrorDialog(
-                            context,
-                            'Failed to register',
-                          );
+                        } catch (e) {
+                          print(e);
                         }
                       },
                       child: const Text("Register"),

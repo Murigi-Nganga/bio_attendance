@@ -1,7 +1,6 @@
 import 'package:bio_attendance/models/lecturer.dart';
 import 'package:bio_attendance/models/student.dart';
-import 'package:bio_attendance/services/auth/auth_service.dart';
-import 'package:bio_attendance/services/crud/database_service.dart';
+import 'package:bio_attendance/services/database_service.dart';
 import 'package:flutter/material.dart';
 
 class DatabaseProvider extends ChangeNotifier {
@@ -47,22 +46,15 @@ class DatabaseProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      // Add user to auth
-      await AuthService.firebase().createUser(
-        email: addStudentData['email']!,
-        password: addStudentData['password']!,
-      );
 
       // Add student to users collection
       await addUser({
         'email': addStudentData['email']!,
         'role': 'student',
+        'password': addStudentData['password']!
       });
 
       addStudentData.remove('password');
-
-      print('LET US SEE IF IT HAS BEEN MODIFIED');
-      print(addStudentData);
 
       await _databaseService.addStudent(addStudentData);
     } catch (e) {
@@ -78,16 +70,12 @@ class DatabaseProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      // Add user to auth
-      await AuthService.firebase().createUser(
-        email: addLecturerData['email']!,
-        password: addLecturerData['password']!,
-      );
 
       // Add student to users collection
       await addUser({
         'email': addLecturerData['email']!,
         'role': 'lecturer',
+        'password': addLecturerData['password']
       });
 
       addLecturerData.remove('password');
@@ -107,6 +95,20 @@ class DatabaseProvider extends ChangeNotifier {
 
     try {
       await _databaseService.addUser(userData);
+    } catch (e) {
+      print('Error fetching lecturer data: $e');
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> deleteUser(String email) async {
+    isLoading = true;
+    notifyListeners();
+
+    try {
+      await _databaseService.deleteUser(email);
     } catch (e) {
       print('Error fetching lecturer data: $e');
     } finally {

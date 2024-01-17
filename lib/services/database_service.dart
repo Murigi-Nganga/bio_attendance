@@ -85,7 +85,64 @@ class DatabaseService {
 
       print('User added successfully with ID: $documentId');
     } catch (error) {
-      print('Error adding suser: $error');
+      print('Error adding user: $error');
+    }
+  }
+
+  Future<void> deleteUser(String email) async {
+    try {
+      QuerySnapshot querySnapshot =
+          await _usersCollection.where('email', isEqualTo: email).get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        // Delete auth user from Firebase Authentication
+        querySnapshot.docs.first['user_id'];
+
+        // Delete user from the 'users' collection
+        await querySnapshot.docs.first.reference.delete();
+      } else {
+        print('User with the provided email has not been found');
+      }
+    } catch (error) {
+      print('Error adding user: $error');
+    }
+  }
+
+  Future<void> deleteLecturer(String email) async {
+    try {
+      QuerySnapshot querySnapshot =
+          await _usersCollection.where('email', isEqualTo: email).get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        // Delete auth user from Firebase Authentication
+        querySnapshot.docs.first['user_id'];
+
+        // Delete user from the 'users' collection
+        await querySnapshot.docs.first.reference.delete();
+      } else {
+        print('User with the provided email has not been found');
+      }
+    } catch (error) {
+      print('Error adding user: $error');
+    }
+  }
+
+  Future<void> deleteStudent(String email) async {
+    try {
+      QuerySnapshot querySnapshot =
+          await _usersCollection.where('email', isEqualTo: email).get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        // Delete auth user from Firebase Authentication
+        querySnapshot.docs.first['user_id'];
+
+        // Delete user from the 'users' collection
+        await querySnapshot.docs.first.reference.delete();
+      } else {
+        print('User with the provided email has not been found');
+      }
+    } catch (error) {
+      print('Error adding user: $error');
     }
   }
 }

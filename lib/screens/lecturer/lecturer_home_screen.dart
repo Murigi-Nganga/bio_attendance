@@ -1,8 +1,5 @@
-import 'package:bio_attendance/routes/app_routes.dart';
 import 'package:bio_attendance/screens/lecturer/tabs/reports_tab.dart';
 import 'package:bio_attendance/screens/lecturer/tabs/units_tab.dart';
-import 'package:bio_attendance/services/auth/auth_service.dart';
-import 'package:bio_attendance/utilities/enums/app_enums.dart';
 import 'package:flutter/material.dart';
 
 class LecturerHomeScreen extends StatefulWidget {
@@ -14,14 +11,7 @@ class LecturerHomeScreen extends StatefulWidget {
 
 class _LecturerHomeScreenState extends State<LecturerHomeScreen> {
   void _handleLogout(BuildContext context) async {
-    await AuthService.firebase()
-        .logOut()
-        .then((_) => Navigator.pushNamedAndRemoveUntil(
-              context,
-              loginRoute,
-              (route) => false,
-              arguments: {'role': Role.lecturer},
-            ));
+    //TODO: Impl logout logic
   }
 
 int _currentIndex = 0;
