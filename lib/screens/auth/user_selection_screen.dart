@@ -1,7 +1,7 @@
 import 'package:bio_attendance/routes/app_routes.dart';
 import 'package:bio_attendance/utilities/enums/app_enums.dart';
 import 'package:bio_attendance/utilities/extenstions/string_extensions.dart';
-import 'package:bio_attendance/utilities/theme/gaps.dart';
+import 'package:bio_attendance/utilities/theme/sizes.dart';
 import 'package:flutter/material.dart';
 
 class UserSelectionScreen extends StatelessWidget {
@@ -11,7 +11,7 @@ class UserSelectionScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return const Scaffold(
       body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: Gap.medium),
+        padding: EdgeInsets.symmetric(horizontal: SpaceSize.medium),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -19,22 +19,16 @@ class UserSelectionScreen extends StatelessWidget {
             Text(
               'Log In As',
               style: TextStyle(
-                //TODO: Add enum for font sizes
-                fontSize: 22,
+                fontSize: FontSize.large,
                 fontWeight: FontWeight.bold,
               ),
               textAlign: TextAlign.center,
             ),
-            SizedBox(height: Gap.large * 2),
-            // SelectionButton(role: Role.student),
-            // SizedBox(height: Gap.medium),
-            // SelectionButton(role: Role.lecturer),
-            // SizedBox(height: Gap.medium),
-            // SelectionButton(role: Role.admin),
+            SizedBox(height: SpaceSize.large * 2),
             Wrap(
               alignment: WrapAlignment.spaceEvenly,
-              runSpacing: Gap.medium,
-              spacing: Gap.large,
+              runSpacing: SpaceSize.medium,
+              spacing: SpaceSize.large,
               children: [
                 SelectionWidget(role: Role.admin),
                 SelectionWidget(role: Role.lecturer),
@@ -58,7 +52,6 @@ class SelectionWidget extends StatelessWidget {
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        //TODO: Add a card or something at the top
         GestureDetector(
           onTap: () => Navigator.pushNamed(
             context,
@@ -66,12 +59,12 @@ class SelectionWidget extends StatelessWidget {
             arguments: {'role': role},
           ),
           child: CircleAvatar(
-            radius: Gap.large * 2,
+            radius: SpaceSize.large * 2,
             backgroundColor: Colors.blue.shade200,
             child: Image.asset('assets/images/${role.name}.png'),
           ),
         ),
-        const SizedBox(height: Gap.medium),
+        const SizedBox(height: SpaceSize.medium),
         Text(role.name.capitalizeFirstChar())
       ],
     );

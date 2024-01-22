@@ -1,4 +1,6 @@
+import 'package:bio_attendance/services/exceptions.dart';
 import 'package:bio_attendance/utilities/enums/app_enums.dart';
+import 'package:bio_attendance/utilities/helpers/password_hash.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class DatabaseService {
@@ -16,19 +18,19 @@ class DatabaseService {
     // _unitsCollection = _db.collection('course_units');
   }
 
-  Future<bool> isRoleCorrect(Role role, String email) async {
+  Future<Map<String, dynamic>> getUser(String email) async {
     QuerySnapshot querySnapshot =
         await _usersCollection.where('email', isEqualTo: email).get();
 
     if (querySnapshot.docs.isNotEmpty) {
       DocumentSnapshot documentSnapshot = querySnapshot.docs.first;
-      return role.name ==
-          (documentSnapshot.data() as Map<String, dynamic>)['role'];
+      return documentSnapshot.data() as Map<String, dynamic>;
     } else {
-      throw Exception('Lecturer with that email not found !!');
+      throw UserNotFoundException();
     }
   }
 
+  // Get Student's details
   Future<Map<String, dynamic>> getStudent(String email) async {
     QuerySnapshot querySnapshot =
         await _studentsCollection.where('email', isEqualTo: email).get();
@@ -37,10 +39,11 @@ class DatabaseService {
       DocumentSnapshot documentSnapshot = querySnapshot.docs.first;
       return documentSnapshot.data() as Map<String, dynamic>;
     } else {
-      throw Exception('Student with that email not found !!');
+      throw UserNotFoundException();
     }
   }
 
+  // Get lecturer's details
   Future<Map<String, dynamic>> getLecturer(String email) async {
     QuerySnapshot querySnapshot =
         await _lecturersCollection.where('email', isEqualTo: email).get();
@@ -49,100 +52,113 @@ class DatabaseService {
       DocumentSnapshot documentSnapshot = querySnapshot.docs.first;
       return documentSnapshot.data() as Map<String, dynamic>;
     } else {
-      throw Exception('Lecturer with that email not found !!');
+      throw UserNotFoundException();
     }
   }
 
   Future<void> addStudent(Map<String, dynamic> studentData) async {
     try {
-      DocumentReference documentReference =
-          await _studentsCollection.add(studentData);
-      String documentId = documentReference.id;
+      Map<String, dynamic> dbStudent = await getStudent(studentData['email']);
+      if (dbStudent.isNotEmpty) {
+        throw EmailAlreadyInUseException();
+      }
+    } on UserNotFoundException {
+      QuerySnapshot querySnapshot = await _studentsCollection
+          .where('reg_no', isEqualTo: studentData['reg_no'])
+          .get();
 
-      print('Student added successfully with ID: $documentId');
-    } catch (error) {
-      print('Error adding student: $error');
+      if (querySnapshot.docs.isNotEmpty) {
+        throw RegNoAlreadyInUseException();
+      }
+
+      await _usersCollection.add({
+        'email': studentData['email'],
+        'role': Role.student.name,
+        'password': hashPassword(studentData['password']),
+      });
+
+      await _studentsCollection.add({
+        'name': studentData['name'],
+        'email': studentData['email'],
+        'reg_no': studentData['reg_no'],
+        'course': studentData['course'],
+      });
+    } on EmailAlreadyInUseException {
+      rethrow;
+    } on RegNoAlreadyInUseException {
+      rethrow;
     }
   }
 
   Future<void> addLecturer(Map<String, dynamic> lecturerData) async {
     try {
-      DocumentReference documentReference =
-          await _lecturersCollection.add(lecturerData);
-      String documentId = documentReference.id;
+      Map<String, dynamic> dbLecturer =
+          await getLecturer(lecturerData['email']);
+      if (dbLecturer.isNotEmpty) {
+        throw EmailAlreadyInUseException();
+      }
+    } on UserNotFoundException {
+      await _usersCollection.add({
+        'email': lecturerData['email'],
+        'role': Role.lecturer.name,
+        'password': hashPassword(lecturerData['password']),
+      });
 
-      print('Lecturer added successfully with ID: $documentId');
-    } catch (error) {
-      print('Error adding lecturer: $error');
+      await _lecturersCollection.add({
+        'name': lecturerData['name'],
+        'email': lecturerData['email'],
+        'course_units': lecturerData['course_units']
+      });
+    } on EmailAlreadyInUseException {
+      rethrow;
     }
   }
 
-  Future<void> addUser(Map<String, dynamic> userData) async {
-    try {
-      DocumentReference documentReference =
-          await _usersCollection.add(userData);
-      String documentId = documentReference.id;
-
-      print('User added successfully with ID: $documentId');
-    } catch (error) {
-      print('Error adding user: $error');
-    }
-  }
-
-  Future<void> deleteUser(String email) async {
+  Future<void> _deleteUser(String email) async {
     try {
       QuerySnapshot querySnapshot =
           await _usersCollection.where('email', isEqualTo: email).get();
 
       if (querySnapshot.docs.isNotEmpty) {
-        // Delete auth user from Firebase Authentication
-        querySnapshot.docs.first['user_id'];
-
-        // Delete user from the 'users' collection
         await querySnapshot.docs.first.reference.delete();
       } else {
-        print('User with the provided email has not been found');
+        throw UserNotFoundException();
       }
-    } catch (error) {
-      print('Error adding user: $error');
-    }
-  }
-
-  Future<void> deleteLecturer(String email) async {
-    try {
-      QuerySnapshot querySnapshot =
-          await _usersCollection.where('email', isEqualTo: email).get();
-
-      if (querySnapshot.docs.isNotEmpty) {
-        // Delete auth user from Firebase Authentication
-        querySnapshot.docs.first['user_id'];
-
-        // Delete user from the 'users' collection
-        await querySnapshot.docs.first.reference.delete();
-      } else {
-        print('User with the provided email has not been found');
-      }
-    } catch (error) {
-      print('Error adding user: $error');
+    } on UserNotFoundException {
+      rethrow;
     }
   }
 
   Future<void> deleteStudent(String email) async {
     try {
       QuerySnapshot querySnapshot =
-          await _usersCollection.where('email', isEqualTo: email).get();
+          await _studentsCollection.where('email', isEqualTo: email).get();
 
       if (querySnapshot.docs.isNotEmpty) {
-        // Delete auth user from Firebase Authentication
-        querySnapshot.docs.first['user_id'];
-
-        // Delete user from the 'users' collection
         await querySnapshot.docs.first.reference.delete();
+        await _deleteUser(email);
       } else {
-        print('User with the provided email has not been found');
+        throw UserNotFoundException();
       }
-    } catch (error) {
-      print('Error adding user: $error');
+    } on UserNotFoundException {
+      rethrow;
     }
   }
+
+  Future<void> deleteLecturer(String email) async {
+    try {
+      QuerySnapshot querySnapshot =
+          await _lecturersCollection.where('email', isEqualTo: email).get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        await querySnapshot.docs.first.reference.delete();
+        await _deleteUser(email);
+      } else {
+        throw UserNotFoundException();
+      }
+    } on UserNotFoundException {
+      rethrow;
+    }
+  }
+
 }

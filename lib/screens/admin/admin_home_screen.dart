@@ -1,6 +1,9 @@
+import 'package:bio_attendance/routes/app_routes.dart';
 import 'package:bio_attendance/screens/admin/tabs/lecturers_tab.dart';
 import 'package:bio_attendance/screens/admin/tabs/reports_tab.dart';
 import 'package:bio_attendance/screens/admin/tabs/students_tab.dart';
+import 'package:bio_attendance/services/local_storage.dart';
+import 'package:bio_attendance/utilities/enums/app_enums.dart';
 import 'package:flutter/material.dart';
 
 class AdminHomeScreen extends StatefulWidget {
@@ -12,7 +15,13 @@ class AdminHomeScreen extends StatefulWidget {
 
 class _AdminHomeScreenState extends State<AdminHomeScreen> {
   void _handleLogout(BuildContext context) async {
-    //TODO: Add impl to clear shared prefs of the saved user data
+    await LocalStorage().deleteUser();
+    if (!mounted) return;
+    Navigator.of(context).pushNamedAndRemoveUntil(
+      loginRoute,
+      (route) => false,
+      arguments: {'role': Role.admin}
+    );
   }
 
   int _currentIndex = 0;
@@ -22,6 +31,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
     LecturersTab(),
     ReportsTab(),
   ];
+
   final _bottomNavBarItems = const [
     BottomNavigationBarItem(
       icon: Icon(Icons.school_rounded),
@@ -49,7 +59,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 0.0),
+          padding: const EdgeInsets.all(16.0),
           child: _tabPages[_currentIndex],
         ),
       ),

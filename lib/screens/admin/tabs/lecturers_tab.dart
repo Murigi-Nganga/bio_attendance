@@ -1,7 +1,13 @@
+import 'dart:io';
+
 import 'package:bio_attendance/models/lecturer.dart';
 import 'package:bio_attendance/providers/database_provider.dart';
 import 'package:bio_attendance/routes/app_routes.dart';
-import 'package:bio_attendance/utilities/theme/gaps.dart';
+import 'package:bio_attendance/services/exceptions.dart';
+import 'package:bio_attendance/utilities/dialogs/error_dialog.dart';
+import 'package:bio_attendance/utilities/helpers/validators/input_validators.dart';
+import 'package:bio_attendance/utilities/theme/sizes.dart';
+import 'package:bio_attendance/widgets/custom_form_field.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -14,6 +20,7 @@ class LecturersTab extends StatefulWidget {
 
 class _LecturersTabState extends State<LecturersTab> {
   late final TextEditingController _email;
+  final _searchFormKey = GlobalKey<FormState>();
 
   @override
   void initState() {
@@ -32,43 +39,64 @@ class _LecturersTabState extends State<LecturersTab> {
     return Column(
       children: [
         Image.asset('assets/images/search.png'),
-        TextField(
-          controller: _email,
-          enableSuggestions: false,
-          autocorrect: false,
-          keyboardType: TextInputType.emailAddress,
-          decoration: const InputDecoration(
-            hintText: 'Lecturer Email Address',
+        Form(
+          key: _searchFormKey,
+          child: Column(
+            children: [
+              CustomFormField(
+                controller: _email,
+                labelText: 'Lecturer Email Address',
+                textInputAction: TextInputAction.done,
+                prefixIcon: Icons.email_rounded,
+                validator: validateEmail,
+              ),
+              const SizedBox(height: SpaceSize.large),
+              Consumer<DatabaseProvider>(
+                builder: (context, databaseProvider, child) {
+                  if (databaseProvider.isLoading) {
+                    return const CircularProgressIndicator();
+                  } else {
+                    return SizedBox(
+                      width: MediaQuery.of(context).size.width * .75,
+                      child: ElevatedButton(
+                        onPressed: () async {
+                          if (!_searchFormKey.currentState!.validate()) return;
+                          try {
+                            Lecturer lecturer =
+                                await databaseProvider.getLecturer(_email.text);
+
+                            if (!mounted) return;
+                            Navigator.of(context).pushNamed(
+                              lecturerDetailsRoute,
+                              arguments: {'lecturer': lecturer},
+                            );
+                          } on UserNotFoundException {
+                            showErrorDialog(
+                              context,
+                              UserNotFoundException().toString(),
+                            );
+                          } on SocketException {
+                            showErrorDialog(
+                              context,
+                              'Please check your internet connection',
+                            );
+                          } on GenericException {
+                            showErrorDialog(
+                              context,
+                              GenericException().toString(),
+                            );
+                          }
+                        },
+                        child: const Text("Search"),
+                      ),
+                    );
+                  }
+                },
+              ),
+            ],
           ),
         ),
-        const SizedBox(height: Gap.large),
-        Consumer<DatabaseProvider>(
-          builder: (context, databaseProvider, child) {
-            if (databaseProvider.isLoading) {
-              return const CircularProgressIndicator();
-            } else {
-              return SizedBox(
-                width: MediaQuery.of(context).size.width * .75,
-                child: ElevatedButton(
-                  onPressed: () async {
-                    Lecturer? lecturer =
-                        await databaseProvider.getLecturer(_email.text);
-                    if (lecturer == null) {
-                    } else {
-                      if (!mounted) return;
-                      Navigator.of(context).pushNamed(
-                        lecturerDetailsRoute,
-                        arguments: {'lecturer': lecturer},
-                      );
-                    }
-                  },
-                  child: const Text("Search"),
-                ),
-              );
-            }
-          },
-        ),
-        const SizedBox(height: Gap.medium),
+        const SizedBox(height: SpaceSize.medium),
         SizedBox(
           width: MediaQuery.of(context).size.width * .75,
           child: OutlinedButton(

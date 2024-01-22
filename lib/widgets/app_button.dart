@@ -1,6 +1,6 @@
+import 'package:bio_attendance/utilities/theme/sizes.dart';
 import 'package:flutter/material.dart';
 
-//TODO: Ist es wichtig?
 class AppButton extends StatelessWidget{
   const AppButton({
     super.key,
@@ -17,10 +17,9 @@ class AppButton extends StatelessWidget{
       width: MediaQuery.of(context).size.width * 0.8,
       child: ElevatedButton(
         onPressed: onPressed,
-        //TODO: Add fontsize to enum!!
         child: Text(
           buttonText,
-          style: const TextStyle(fontSize: 16),
+          style: const TextStyle(fontSize: FontSize.small),
         ),
       ),
     );

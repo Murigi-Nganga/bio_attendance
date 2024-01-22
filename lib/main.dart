@@ -3,6 +3,7 @@ import 'package:bio_attendance/routes/app_routes.dart';
 import 'package:bio_attendance/screens/admin/admin_home_screen.dart';
 import 'package:bio_attendance/screens/lecturer/lecturer_home_screen.dart';
 import 'package:bio_attendance/services/local_storage.dart';
+import 'package:bio_attendance/utilities/enums/app_enums.dart';
 import 'package:bio_attendance/utilities/theme/app_theme.dart';
 import 'package:bio_attendance/firebase_options.dart';
 import 'package:bio_attendance/screens/auth/user_selection_screen.dart';
@@ -28,12 +29,15 @@ class App extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (context) => DatabaseProvider()),
       ],
-      child: MaterialApp(
-        title: 'Biometric Attendance Application',
-        theme: appTheme,
-        debugShowCheckedModeBanner: false,
-        home: const MainPage(),
-        routes: appRoutes,
+      child: GestureDetector(
+        onTap: FocusScope.of(context).unfocus,
+        child: MaterialApp(
+          title: 'Biometric Attendance Application',
+          theme: appTheme,
+          debugShowCheckedModeBanner: false,
+          home: const MainPage(),
+          routes: appRoutes,
+        ),
       ),
     );
   }
@@ -45,15 +49,15 @@ class MainPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: LocalStorage().getUserRole(),
+      future: LocalStorage().getUser(),
       builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          switch (snapshot.data) {
-            case 'admin':
+        if (snapshot.data != null) {
+          switch (snapshot.data!.role) {
+            case Role.admin:
               return const AdminHomeScreen();
-            case 'student':
+            case Role.student:
               return const StudentHomeScreen();
-            case 'lecturer':
+            case Role.lecturer:
               return const LecturerHomeScreen();
           }
         }

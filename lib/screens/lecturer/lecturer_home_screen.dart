@@ -1,5 +1,8 @@
+import 'package:bio_attendance/routes/app_routes.dart';
 import 'package:bio_attendance/screens/lecturer/tabs/reports_tab.dart';
 import 'package:bio_attendance/screens/lecturer/tabs/units_tab.dart';
+import 'package:bio_attendance/services/local_storage.dart';
+import 'package:bio_attendance/utilities/enums/app_enums.dart';
 import 'package:flutter/material.dart';
 
 class LecturerHomeScreen extends StatefulWidget {
@@ -11,7 +14,13 @@ class LecturerHomeScreen extends StatefulWidget {
 
 class _LecturerHomeScreenState extends State<LecturerHomeScreen> {
   void _handleLogout(BuildContext context) async {
-    //TODO: Impl logout logic
+    await LocalStorage().deleteUser();
+    if (!mounted) return;
+    Navigator.of(context).pushNamedAndRemoveUntil(
+      loginRoute,
+      (route) => false,
+      arguments: {'role': Role.lecturer}
+    );
   }
 
 int _currentIndex = 0;
@@ -46,7 +55,7 @@ int _currentIndex = 0;
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 0.0),
+          padding: const EdgeInsets.all(16.0),
           child: _tabPages[_currentIndex],
         ),
       ),

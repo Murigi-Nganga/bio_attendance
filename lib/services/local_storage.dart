@@ -1,3 +1,5 @@
+import 'package:bio_attendance/models/auth_user.dart';
+import 'package:bio_attendance/utilities/enums/app_enums.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LocalStorage {
@@ -9,19 +11,32 @@ class LocalStorage {
     return _instance;
   }
 
-  // User role persistence
-  Future<void> saveUser(String role) async {
+  Future<void> saveUser(AuthUser authUser) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setString('userRole', role);
+    await prefs.setString('email', authUser.email);
+    await prefs.setString('role', authUser.role.name);
   }
 
-  Future<String?> getUserRole() async {
+  Future<AuthUser?> getUser() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getString('userRole');
+    String? email = prefs.getString('email');
+    Role? role = prefs.getString('role') == null
+        ? null
+        : Role.values.byName(prefs.getString('role')!);
+
+    if (role == null || email == null) {
+      return null;
+    }
+
+    return AuthUser(
+      email: email,
+      role: role,
+    );
   }
 
-  Future<bool> deleteUserRole() async {
+  Future<void> deleteUser() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.remove('userRole');
+    prefs.remove('email');
+    prefs.remove('role');
   }
 }

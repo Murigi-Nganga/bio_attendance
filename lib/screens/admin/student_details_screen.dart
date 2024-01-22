@@ -1,40 +1,96 @@
+import 'dart:io';
+
 import 'package:bio_attendance/models/student.dart';
-import 'package:bio_attendance/utilities/theme/gaps.dart';
+import 'package:bio_attendance/providers/database_provider.dart';
+import 'package:bio_attendance/services/exceptions.dart';
+import 'package:bio_attendance/utilities/dialogs/confirm_dialog.dart';
+import 'package:bio_attendance/utilities/dialogs/error_dialog.dart';
+import 'package:bio_attendance/utilities/dialogs/success_dialog.dart';
+import 'package:bio_attendance/utilities/theme/sizes.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class StudentDetailsScreen extends StatelessWidget {
   const StudentDetailsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+    final args =
+        ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
     final Student student = args['student'];
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Student Details'),
       ),
-      body: Column(
-        children: [
+      body: Column(children: [
         Image.asset('assets/images/student.png'),
-        const SizedBox(height: Gap.large),
+        const SizedBox(height: SpaceSize.large),
         Text('Full Name: ${student.fullName}'),
-        const SizedBox(height: Gap.medium),
+        const SizedBox(height: SpaceSize.medium),
         Text('Registration Number: ${student.regNo}'),
-        const SizedBox(height: Gap.medium),
+        const SizedBox(height: SpaceSize.medium),
         Text('Course: ${student.course}'),
-        const SizedBox(height: Gap.medium),
+        const SizedBox(height: SpaceSize.medium),
         Text('Email Address: ${student.email}'),
-        const SizedBox(height: Gap.large),
-        SizedBox(
-          width: MediaQuery.of(context).size.width * .75,
-          child: ElevatedButton(
-            style: const ButtonStyle(
-              backgroundColor: MaterialStatePropertyAll(Color.fromARGB(255, 185, 16, 16)),
-            ),
-            onPressed: () => print('Delete student button tapped'),
-            child: const Text('Delete'),
-          ),
+        const SizedBox(height: SpaceSize.large),
+        Consumer<DatabaseProvider>(
+          builder: (_, databaseProvider, __) {
+            if (databaseProvider.isLoading) {
+              return const CircularProgressIndicator(
+                color: Color.fromARGB(255, 185, 16, 16),
+              );
+            } else {
+              return SizedBox(
+                width: MediaQuery.of(context).size.width * .75,
+                child: ElevatedButton(
+                  style: const ButtonStyle(
+                    backgroundColor: MaterialStatePropertyAll(
+                      Color.fromARGB(255, 185, 16, 16),
+                    ),
+                  ),
+                  onPressed: () async {
+                    try {
+                      final shouldDelete = await showConfirmDialog(
+                        context,
+                        'Are you sure you want to delete',
+                      );
+
+                      if (shouldDelete == false) return;
+
+                      await databaseProvider
+                          .deleteStudent(student.email)
+                          .then((_) {
+                        showSuccessDialog(
+                          context,
+                          'Student deleted successfully',
+                        ).whenComplete(() {
+                          Navigator.of(context).pop();
+                        });
+                      });
+                      if (!context.mounted) return;
+                    } on UserNotFoundException {
+                      showErrorDialog(
+                        context,
+                        UserNotFoundException().toString(),
+                      );
+                    } on SocketException {
+                      showErrorDialog(
+                        context,
+                        'Please check your internet connection',
+                      );
+                    } on GenericException {
+                      showErrorDialog(
+                        context,
+                        GenericException().toString(),
+                      );
+                    }
+                  },
+                  child: const Text('Delete'),
+                ),
+              );
+            }
+          },
         ),
       ]),
     );

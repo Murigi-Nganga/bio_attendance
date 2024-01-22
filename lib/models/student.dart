@@ -3,7 +3,6 @@ class Student {
   final String regNo;
   final String course;
   final String email;
-  //TODO: Add the attendances field
 
   const Student({
     required this.fullName,

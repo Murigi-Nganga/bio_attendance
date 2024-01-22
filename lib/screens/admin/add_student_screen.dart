@@ -1,6 +1,12 @@
+import 'dart:io';
+
 import 'package:bio_attendance/providers/database_provider.dart';
+import 'package:bio_attendance/services/exceptions.dart';
 import 'package:bio_attendance/utilities/dialogs/error_dialog.dart';
-import 'package:bio_attendance/utilities/theme/gaps.dart';
+import 'package:bio_attendance/utilities/dialogs/success_dialog.dart';
+import 'package:bio_attendance/utilities/helpers/validators/input_validators.dart';
+import 'package:bio_attendance/utilities/theme/sizes.dart';
+import 'package:bio_attendance/widgets/custom_form_field.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -17,6 +23,7 @@ class _RegisterViewState extends State<AddStudentScreen> {
   late final TextEditingController _email;
   late final TextEditingController _name;
   late final TextEditingController _password;
+  final _formKey = GlobalKey<FormState>();
 
   final List<String> _courseValues = [
     'Information Technology',
@@ -63,104 +70,125 @@ class _RegisterViewState extends State<AddStudentScreen> {
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.only(left: 16.0, top: 16.0, right: 16.0),
+          padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
               Image.asset(
                 'assets/images/add_user.png',
                 height: 250.0,
               ),
-              TextField(
-                controller: _name,
-                enableSuggestions: false,
-                autocorrect: false,
-                decoration: const InputDecoration(
-                  hintText: 'Full Name',
-                ),
-              ),
-              TextField(
-                controller: _regNo,
-                enableSuggestions: false,
-                autocorrect: false,
-                decoration: const InputDecoration(
-                  hintText: 'Registration Number',
-                ),
-              ),
-              TextField(
-                controller: _email,
-                enableSuggestions: false,
-                autocorrect: false,
-                keyboardType: TextInputType.emailAddress,
-                decoration: const InputDecoration(
-                  hintText: 'Email Address',
-                ),
-              ),
-              TextField(
-                controller: _password,
-                obscureText: true,
-                enableSuggestions: false,
-                autocorrect: false,
-                decoration: const InputDecoration(
-                  hintText: 'Password',
-                ),
-              ),
-              const SizedBox(height: Gap.small),
-              DropdownButton<String>(
-                value: _selectedCourse,
-                onChanged: (newValue) {
-                  setState(() {
-                    _selectedCourse = newValue!;
-                  });
-                },
-                items: _courseValues
-                    .map(
-                      (courseValue) => DropdownMenuItem(
-                        value: courseValue,
-                        child: Text(courseValue),
-                      ),
-                    )
-                    .toList(),
-              ),
-              const SizedBox(height: Gap.medium),
-              Consumer<DatabaseProvider>(builder: (_, databaseProvider, __) {
-                if (databaseProvider.isLoading) {
-                  return const CircularProgressIndicator();
-                } else {
-                  return SizedBox(
-                    width: MediaQuery.of(context).size.width * .75,
-                    child: ElevatedButton(
-                      onPressed: () async {
-                        final email = _email.text;
-                        final name = _name.text;
-                        final regNo = _regNo.text;
-                        final password = _password.text;
-                        final course = _selectedCourse;
-
-                        try {
-                          await databaseProvider.addStudent({
-                            'name': name,
-                            'email': email,
-                            'reg_no': regNo,
-                            'course': course,
-                            'password': password
-                          });
-                          if (!mounted) return;
-                          //TODO: Show a different type of dialog
-                          await showErrorDialog(
-                            context,
-                            'Student added successfully',
-                          ).then((_) => _resetForm());
-
-                          if (!mounted) return;
-                        } catch (e) {
-                          print(e);
-                        }
-                      },
-                      child: const Text("Register"),
+              Form(
+                key: _formKey,
+                child: Column(
+                  children: [
+                    CustomFormField(
+                      controller: _name,
+                      labelText: 'Full Name',
+                      prefixIcon: Icons.abc_rounded,
+                      validator: validateName,
                     ),
-                  );
-                }
-              }),
+                    const SizedBox(height: SpaceSize.medium),
+                    CustomFormField(
+                      controller: _regNo,
+                      labelText: 'Registration Number',
+                      prefixIcon: Icons.app_registration_rounded,
+                      validator: validateRegNumber,
+                    ),
+                    const SizedBox(height: SpaceSize.medium),
+                    CustomFormField(
+                      controller: _email,
+                      labelText: 'Email Address',
+                      prefixIcon: Icons.email_rounded,
+                      validator: validateEmail,
+                    ),
+                    const SizedBox(height: SpaceSize.medium),
+                    CustomFormField(
+                      controller: _password,
+                      labelText: 'Password',
+                      obscureText: true,
+                      textInputAction: TextInputAction.done,
+                      prefixIcon: Icons.password_rounded,
+                      validator: validatePassword,
+                    ),
+                    const SizedBox(height: SpaceSize.medium),
+                    DropdownButton<String>(
+                      value: _selectedCourse,
+                      onChanged: (newValue) {
+                        setState(() {
+                          _selectedCourse = newValue!;
+                        });
+                      },
+                      items: _courseValues
+                          .map(
+                            (courseValue) => DropdownMenuItem(
+                              value: courseValue,
+                              child: Text(courseValue),
+                            ),
+                          )
+                          .toList(),
+                    ),
+                    const SizedBox(height: SpaceSize.medium),
+                    Consumer<DatabaseProvider>(builder: (_, databaseProvider, __) {
+                      if (databaseProvider.isLoading) {
+                        return const CircularProgressIndicator();
+                      } else {
+                        return SizedBox(
+                          width: MediaQuery.of(context).size.width * .75,
+                          child: ElevatedButton(
+                            onPressed: () async {
+                              if (!_formKey.currentState!.validate()) return;
+                              
+                              final email = _email.text;
+                              final name = _name.text;
+                              final regNo = _regNo.text;
+                              final password = _password.text;
+                              final course = _selectedCourse;
+                    
+                              try {
+                                await databaseProvider.addStudent({
+                                  'name': name,
+                                  'email': email,
+                                  'reg_no': regNo,
+                                  'course': course,
+                                  'password': password
+                                });
+                                if (!mounted) return;
+                                await showSuccessDialog(
+                                  context,
+                                  'Student added successfully',
+                                ).then((_) => _resetForm());
+                    
+                                if (!mounted) return;
+                              } on EmailAlreadyInUseException {
+                                showErrorDialog(
+                                  context,
+                                  EmailAlreadyInUseException().toString(),
+                                );
+                              } on RegNoAlreadyInUseException {
+                                showErrorDialog(
+                                  context,
+                                  RegNoAlreadyInUseException().toString(),
+                                );
+                              } on SocketException {
+                                showErrorDialog(
+                                  context,
+                                  'Please chec your internet connection',
+                                );
+                              } on GenericException {
+                                showErrorDialog(
+                                  context,
+                                  GenericException().toString(),
+                                );
+                              }
+                            },
+                            child: const Text("Register"),
+                          ),
+                        );
+                      }
+                    }),
+                  ],
+                ),
+              ),
             ],
           ),
         ),
