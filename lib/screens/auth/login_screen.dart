@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:bio_attendance/providers/database_provider.dart';
 import 'package:bio_attendance/routes/app_routes.dart';
 import 'package:bio_attendance/services/exceptions.dart';
@@ -124,12 +122,6 @@ class _LoginScreenState extends State<LoginScreen> {
                                       context,
                                       EmailPasswordMismatchException()
                                           .toString(),
-                                    );
-                                    return;
-                                  } on SocketException {
-                                    await showErrorDialog(
-                                      context,
-                                      'Please check your internet connection',
                                     );
                                     return;
                                   } on GenericException {

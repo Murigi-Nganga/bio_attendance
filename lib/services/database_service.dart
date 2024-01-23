@@ -25,7 +25,8 @@ class DatabaseService {
     if (querySnapshot.docs.isNotEmpty) {
       DocumentSnapshot documentSnapshot = querySnapshot.docs.first;
       return documentSnapshot.data() as Map<String, dynamic>;
-    } else {
+    } 
+    else {
       throw UserNotFoundException();
     }
   }

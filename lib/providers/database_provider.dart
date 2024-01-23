@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:bio_attendance/models/auth_user.dart';
 import 'package:bio_attendance/models/lecturer.dart';
 import 'package:bio_attendance/models/student.dart';
@@ -24,8 +22,6 @@ class DatabaseProvider extends ChangeNotifier {
       rethrow;
     } on RegNoAlreadyInUseException {
       rethrow;
-    } on SocketException {
-      rethrow;
     } catch (_) {
       throw GenericException();
     } finally {
@@ -41,8 +37,6 @@ class DatabaseProvider extends ChangeNotifier {
     try {
       await _databaseService.addLecturer(addLecturerData);
     } on EmailAlreadyInUseException {
-      rethrow;
-    } on SocketException {
       rethrow;
     } catch (_) {
       throw GenericException();
@@ -75,8 +69,6 @@ class DatabaseProvider extends ChangeNotifier {
       rethrow;
     } on EmailPasswordMismatchException {
       rethrow;
-    } on SocketException {
-      rethrow;
     } catch (e) {
       throw GenericException();
     } finally {
@@ -94,8 +86,6 @@ class DatabaseProvider extends ChangeNotifier {
           await _databaseService.getStudent(email);
       return Student.fromJson(studentData);
     } on UserNotFoundException {
-      rethrow;
-    } on SocketException {
       rethrow;
     } catch (_) {
       throw GenericException();
@@ -115,8 +105,6 @@ class DatabaseProvider extends ChangeNotifier {
       return Lecturer.fromJson(lecturerData);
     } on UserNotFoundException {
       rethrow;
-    } on SocketException {
-      rethrow;
     } catch (_) {
       throw GenericException();
     } finally {
@@ -132,8 +120,6 @@ class DatabaseProvider extends ChangeNotifier {
     try {
       await _databaseService.deleteLecturer(email);
     } on UserNotFoundException {
-      rethrow;
-    } on SocketException {
       rethrow;
     } catch (_) {
       throw GenericException();
@@ -151,14 +137,11 @@ class DatabaseProvider extends ChangeNotifier {
       await _databaseService.deleteStudent(email);
     } on UserNotFoundException {
       rethrow;
-    } on SocketException {
-      rethrow;
-    } catch (_) {
+    }catch (_) {
       throw GenericException();
     } finally {
       isLoading = false;
       notifyListeners();
     }
   }
-
 }

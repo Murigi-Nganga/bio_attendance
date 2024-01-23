@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:bio_attendance/models/lecturer.dart';
 import 'package:bio_attendance/providers/database_provider.dart';
 import 'package:bio_attendance/routes/app_routes.dart';
@@ -74,11 +72,6 @@ class _LecturersTabState extends State<LecturersTab> {
                             showErrorDialog(
                               context,
                               UserNotFoundException().toString(),
-                            );
-                          } on SocketException {
-                            showErrorDialog(
-                              context,
-                              'Please check your internet connection',
                             );
                           } on GenericException {
                             showErrorDialog(
