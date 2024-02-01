@@ -1,5 +1,5 @@
 import 'package:bio_attendance/providers/database_provider.dart';
-import 'package:bio_attendance/routes/app_routes.dart';
+import 'package:bio_attendance/router/app_router.dart';
 import 'package:bio_attendance/screens/admin/admin_home_screen.dart';
 import 'package:bio_attendance/screens/lecturer/lecturer_home_screen.dart';
 import 'package:bio_attendance/services/local_storage.dart';
@@ -29,16 +29,13 @@ class App extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (context) => DatabaseProvider()),
       ],
-      child: GestureDetector(
-        onTap: FocusScope.of(context).unfocus,
-        child: MaterialApp(
+      child: MaterialApp(
           title: 'Biometric Attendance Application',
           theme: appTheme,
           debugShowCheckedModeBanner: false,
           home: const MainPage(),
-          routes: appRoutes,
+          onGenerateRoute: AppRouter.generateRoute,
         ),
-      ),
     );
   }
 }

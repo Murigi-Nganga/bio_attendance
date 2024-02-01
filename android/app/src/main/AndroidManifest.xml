@@ -3,6 +3,9 @@
         android:label="bio_attendance"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+        <meta-data android:name="com.google.android.geo.API_KEY"
+               android:value="AIzaSyCtCZI5eunFskTmMdR7w1igDuGV4UMRAeI"/>
+               
         <activity
             android:name=".MainActivity"
             android:exported="true"

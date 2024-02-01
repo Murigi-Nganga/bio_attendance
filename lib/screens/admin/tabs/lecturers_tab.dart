@@ -1,6 +1,6 @@
 import 'package:bio_attendance/models/lecturer.dart';
 import 'package:bio_attendance/providers/database_provider.dart';
-import 'package:bio_attendance/routes/app_routes.dart';
+import 'package:bio_attendance/router/app_router.dart';
 import 'package:bio_attendance/services/exceptions.dart';
 import 'package:bio_attendance/utilities/dialogs/error_dialog.dart';
 import 'package:bio_attendance/utilities/helpers/validators/input_validators.dart';
@@ -65,7 +65,7 @@ class _LecturersTabState extends State<LecturersTab> {
 
                             if (!mounted) return;
                             Navigator.of(context).pushNamed(
-                              lecturerDetailsRoute,
+                              AppRouter.lecturerDetailsRoute,
                               arguments: {'lecturer': lecturer},
                             );
                           } on UserNotFoundException {
@@ -94,7 +94,7 @@ class _LecturersTabState extends State<LecturersTab> {
           width: MediaQuery.of(context).size.width * .75,
           child: OutlinedButton(
             onPressed: () async {
-              Navigator.of(context).pushNamed(addLecturerRoute);
+              Navigator.of(context).pushNamed(AppRouter.addLecturerRoute);
             },
             child: const Text("Add Lecturer"),
           ),

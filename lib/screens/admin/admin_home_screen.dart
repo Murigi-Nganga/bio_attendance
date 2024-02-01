@@ -1,4 +1,4 @@
-import 'package:bio_attendance/routes/app_routes.dart';
+import 'package:bio_attendance/router/app_router.dart';
 import 'package:bio_attendance/screens/admin/tabs/lecturers_tab.dart';
 import 'package:bio_attendance/screens/admin/tabs/reports_tab.dart';
 import 'package:bio_attendance/screens/admin/tabs/students_tab.dart';
@@ -18,7 +18,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
     await LocalStorage().deleteUser();
     if (!mounted) return;
     Navigator.of(context).pushNamedAndRemoveUntil(
-      loginRoute,
+      AppRouter.loginRoute,
       (route) => false,
       arguments: {'role': Role.admin}
     );

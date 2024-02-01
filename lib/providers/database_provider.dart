@@ -1,3 +1,4 @@
+import 'package:bio_attendance/models/attendance_location.dart';
 import 'package:bio_attendance/models/auth_user.dart';
 import 'package:bio_attendance/models/lecturer.dart';
 import 'package:bio_attendance/models/student.dart';
@@ -59,7 +60,7 @@ class DatabaseProvider extends ChangeNotifier {
         if (dbUser['role'] != (userData['role'] as Role).name) {
           throw InvalidRoleException();
         }
-        LocalStorage().saveUser(AuthUser.fromJSON(userData));
+        await LocalStorage().saveUser(AuthUser.fromJSON(userData));
       } else {
         throw EmailPasswordMismatchException();
       }
@@ -137,7 +138,44 @@ class DatabaseProvider extends ChangeNotifier {
       await _databaseService.deleteStudent(email);
     } on UserNotFoundException {
       rethrow;
-    }catch (_) {
+    } catch (_) {
+      throw GenericException();
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<AttendanceLocation> getClassLocation(String locationName) async {
+    isLoading = true;
+    notifyListeners();
+
+    try {
+      Map<String, dynamic> attLocationData =
+          await _databaseService.getClassLocation(locationName);
+      AttendanceLocation attLocation =
+          AttendanceLocation.fromJson(attLocationData);
+      return attLocation;
+    } on LocationNotFoundException {
+      rethrow;
+    } catch (_) {
+      throw GenericException();
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> updateClassLocation(
+      String locationName, String polygonPoints) async {
+    isLoading = true;
+    notifyListeners();
+
+    try {
+      await _databaseService.updateClassLocation(locationName, polygonPoints);
+    } on LocationNotFoundException {
+      rethrow;
+    } catch (_) {
       throw GenericException();
     } finally {
       isLoading = false;

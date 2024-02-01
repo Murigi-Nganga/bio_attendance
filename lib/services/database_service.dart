@@ -9,15 +9,16 @@ class DatabaseService {
   late CollectionReference _usersCollection;
   late CollectionReference _lecturersCollection;
   late CollectionReference _studentsCollection;
-  // late CollectionReference _unitsCollection;
+  late CollectionReference _attLocationsCollection;
 
   DatabaseService() {
     _usersCollection = _db.collection('users');
     _lecturersCollection = _db.collection('lecturers');
     _studentsCollection = _db.collection('students');
-    // _unitsCollection = _db.collection('course_units');
+    _attLocationsCollection = _db.collection('attendance_locations');
   }
 
+  // Get AuthUser
   Future<Map<String, dynamic>> getUser(String email) async {
     QuerySnapshot querySnapshot =
         await _usersCollection.where('email', isEqualTo: email).get();
@@ -25,8 +26,7 @@ class DatabaseService {
     if (querySnapshot.docs.isNotEmpty) {
       DocumentSnapshot documentSnapshot = querySnapshot.docs.first;
       return documentSnapshot.data() as Map<String, dynamic>;
-    } 
-    else {
+    } else {
       throw UserNotFoundException();
     }
   }
@@ -162,4 +162,37 @@ class DatabaseService {
     }
   }
 
+  Future<Map<String, dynamic>> getClassLocation(String locationName) async {
+    try {
+      QuerySnapshot querySnapshot = await _attLocationsCollection
+          .where('name', isEqualTo: locationName)
+          .get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        DocumentSnapshot documentSnapshot = querySnapshot.docs.first;
+        return documentSnapshot.data() as Map<String, dynamic>;
+      } else {
+        throw LocationNotFoundException();
+      }
+    } on LocationNotFoundException {
+      rethrow;
+    }
+  }
+
+  Future<void> updateClassLocation(String locationName, String polygonPoints) async {
+    try {
+      QuerySnapshot querySnapshot = await _attLocationsCollection
+          .where('name', isEqualTo: locationName)
+          .get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        DocumentReference docReference = querySnapshot.docs.first.reference;
+        await docReference.update({'polygon_points': polygonPoints});
+      } else {
+        throw LocationNotFoundException();
+      }
+    } on LocationNotFoundException {
+      rethrow;
+    }
+  }
 }

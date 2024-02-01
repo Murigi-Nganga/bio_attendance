@@ -1,6 +1,6 @@
-import 'package:bio_attendance/routes/app_routes.dart';
+import 'package:bio_attendance/router/app_router.dart';
 import 'package:bio_attendance/screens/lecturer/tabs/reports_tab.dart';
-import 'package:bio_attendance/screens/lecturer/tabs/units_tab.dart';
+import 'package:bio_attendance/screens/lecturer/tabs/class_locations_tab.dart';
 import 'package:bio_attendance/services/local_storage.dart';
 import 'package:bio_attendance/utilities/enums/app_enums.dart';
 import 'package:flutter/material.dart';
@@ -17,7 +17,7 @@ class _LecturerHomeScreenState extends State<LecturerHomeScreen> {
     await LocalStorage().deleteUser();
     if (!mounted) return;
     Navigator.of(context).pushNamedAndRemoveUntil(
-      loginRoute,
+      AppRouter.loginRoute,
       (route) => false,
       arguments: {'role': Role.lecturer}
     );
@@ -25,17 +25,17 @@ class _LecturerHomeScreenState extends State<LecturerHomeScreen> {
 
 int _currentIndex = 0;
 
-  final _tabTitles = ['Units', 'Reports'];
+  final _tabTitles = ['Locations', 'Reports'];
 
   final _tabPages = const [
-    CourseUnitsTab(),
+    ClassLocationsTab(),
     ReportsTab(),
   ];
 
   final _bottomNavBarItems = const [
     BottomNavigationBarItem(
-      icon: Icon(Icons.my_library_books_rounded),
-      label: 'Units',
+      icon: Icon(Icons.location_pin),
+      label: 'Locations',
     ),
     BottomNavigationBarItem(
       icon: Icon(Icons.menu_book_rounded),

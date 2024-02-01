@@ -1,5 +1,5 @@
 import 'package:bio_attendance/providers/database_provider.dart';
-import 'package:bio_attendance/routes/app_routes.dart';
+import 'package:bio_attendance/router/app_router.dart';
 import 'package:bio_attendance/services/exceptions.dart';
 import 'package:bio_attendance/utilities/dialogs/error_dialog.dart';
 import 'package:bio_attendance/utilities/dialogs/success_dialog.dart';
@@ -37,9 +37,9 @@ class _LoginScreenState extends State<LoginScreen> {
     final Role role = arguments['role']!;
 
     final homeRoute = switch (role) {
-      Role.admin => adminHomeRoute,
-      Role.lecturer => lecturerHomeRoute,
-      Role.student => studentHomeRoute,
+      Role.admin => AppRouter.adminHomeRoute,
+      Role.lecturer => AppRouter.lecturerHomeRoute,
+      Role.student => AppRouter.studentHomeRoute,
     };
 
     return Scaffold(

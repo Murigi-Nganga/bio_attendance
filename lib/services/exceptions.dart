@@ -40,3 +40,10 @@ class RegNoAlreadyInUseException implements Exception {
     return 'User with a similar registration number exists';
   }
 }
+
+class LocationNotFoundException implements Exception {
+  @override
+  String toString() {
+    return 'Location with that name does not exist';
+  }
+}

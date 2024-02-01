@@ -1,4 +1,4 @@
-import 'package:bio_attendance/routes/app_routes.dart';
+import 'package:bio_attendance/router/app_router.dart';
 import 'package:bio_attendance/utilities/enums/app_enums.dart';
 import 'package:bio_attendance/utilities/extenstions/string_extensions.dart';
 import 'package:bio_attendance/utilities/theme/sizes.dart';
@@ -55,7 +55,7 @@ class SelectionWidget extends StatelessWidget {
         GestureDetector(
           onTap: () => Navigator.pushNamed(
             context,
-            loginRoute,
+            AppRouter.loginRoute,
             arguments: {'role': role},
           ),
           child: CircleAvatar(
