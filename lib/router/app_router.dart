@@ -1,4 +1,6 @@
 import 'package:bio_attendance/models/attendance_location.dart';
+import 'package:bio_attendance/models/lecturer.dart';
+import 'package:bio_attendance/models/student.dart';
 import 'package:bio_attendance/screens/admin/add_lecturer_screen.dart';
 import 'package:bio_attendance/screens/admin/add_student_screen.dart';
 import 'package:bio_attendance/screens/admin/admin_home_screen.dart';
@@ -9,6 +11,7 @@ import 'package:bio_attendance/screens/auth/user_selection_screen.dart';
 import 'package:bio_attendance/screens/lecturer/lecturer_home_screen.dart';
 import 'package:bio_attendance/screens/lecturer/location_geofence_screen.dart';
 import 'package:bio_attendance/screens/student/student_home_screen.dart';
+import 'package:bio_attendance/utilities/enums/app_enums.dart';
 import 'package:flutter/material.dart';
 
 class AppRouter {
@@ -32,8 +35,11 @@ class AppRouter {
           builder: (context) => const UserSelectionScreen(),
         );
       case loginRoute:
+        Role role = (args as Map<String, dynamic>)['role'];
         return MaterialPageRoute(
-          builder: (context) => const LoginScreen(),
+          builder: (context) => LoginScreen(
+            role: role
+          ),
         );
       case adminHomeRoute:
         return MaterialPageRoute(
@@ -48,12 +54,18 @@ class AppRouter {
           builder: (context) => const StudentHomeScreen(),
         );
       case studentDetailsRoute:
+        Student student = (args as Map<String, dynamic>)['student'];
         return MaterialPageRoute(
-          builder: (context) => const StudentDetailsScreen(),
+          builder: (context) => StudentDetailsScreen(
+            student: student
+          ),
         );
       case lecturerDetailsRoute:
+      Lecturer lecturer = (args as Map<String, dynamic>)['lecturer'];
         return MaterialPageRoute(
-          builder: (context) => const LecturerDetailsScreen(),
+          builder: (context) => LecturerDetailsScreen(
+            lecturer: lecturer
+          ),
         );
       case addLecturerRoute:
         return MaterialPageRoute(

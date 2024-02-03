@@ -2,8 +2,9 @@ import 'package:bio_attendance/providers/database_provider.dart';
 import 'package:bio_attendance/services/exceptions.dart';
 import 'package:bio_attendance/utilities/dialogs/error_dialog.dart';
 import 'package:bio_attendance/utilities/dialogs/success_dialog.dart';
-import 'package:bio_attendance/utilities/helpers/validators/input_validators.dart';
+import 'package:bio_attendance/utilities/helpers/input_validators.dart';
 import 'package:bio_attendance/utilities/theme/sizes.dart';
+import 'package:bio_attendance/widgets/app_dropdown_button.dart';
 import 'package:bio_attendance/widgets/custom_form_field.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -104,18 +105,12 @@ class _RegisterViewState extends State<AddStudentScreen> {
                       controller: _password,
                       labelText: 'Password',
                       obscureText: true,
-                      textInputAction: TextInputAction.done,
+                      textInputAction: TextInputAction.next,
                       prefixIcon: Icons.password_rounded,
                       validator: validatePassword,
                     ),
                     const SizedBox(height: SpaceSize.medium),
-                    DropdownButton<String>(
-                      value: _selectedCourse,
-                      onChanged: (newValue) {
-                        setState(() {
-                          _selectedCourse = newValue!;
-                        });
-                      },
+                    AppDropdownButton<String>(
                       items: _courseValues
                           .map(
                             (courseValue) => DropdownMenuItem(
@@ -124,9 +119,16 @@ class _RegisterViewState extends State<AddStudentScreen> {
                             ),
                           )
                           .toList(),
+                      value: _selectedCourse,
+                      onChanged: (newValue) {
+                        setState(() {
+                          _selectedCourse = newValue!;
+                        });
+                      },
                     ),
                     const SizedBox(height: SpaceSize.medium),
-                    Consumer<DatabaseProvider>(builder: (_, databaseProvider, __) {
+                    Consumer<DatabaseProvider>(
+                        builder: (_, databaseProvider, __) {
                       if (databaseProvider.isLoading) {
                         return const CircularProgressIndicator();
                       } else {
@@ -135,13 +137,13 @@ class _RegisterViewState extends State<AddStudentScreen> {
                           child: ElevatedButton(
                             onPressed: () async {
                               if (!_formKey.currentState!.validate()) return;
-                              
+
                               final email = _email.text;
                               final name = _name.text;
                               final regNo = _regNo.text;
                               final password = _password.text;
                               final course = _selectedCourse;
-                    
+
                               try {
                                 await databaseProvider.addStudent({
                                   'name': name,
@@ -155,7 +157,7 @@ class _RegisterViewState extends State<AddStudentScreen> {
                                   context,
                                   'Student added successfully',
                                 ).then((_) => _resetForm());
-                    
+
                                 if (!mounted) return;
                               } on EmailAlreadyInUseException {
                                 showErrorDialog(

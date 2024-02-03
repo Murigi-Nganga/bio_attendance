@@ -9,14 +9,14 @@ class UserSelectionScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
+    return Scaffold(
       body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: SpaceSize.medium),
+        padding: const EdgeInsets.symmetric(horizontal: SpaceSize.medium),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(
+            const Text(
               'Log In As',
               style: TextStyle(
                 fontSize: FontSize.large,
@@ -24,16 +24,12 @@ class UserSelectionScreen extends StatelessWidget {
               ),
               textAlign: TextAlign.center,
             ),
-            SizedBox(height: SpaceSize.large * 2),
+            const SizedBox(height: SpaceSize.large * 2),
             Wrap(
               alignment: WrapAlignment.spaceEvenly,
               runSpacing: SpaceSize.medium,
               spacing: SpaceSize.large,
-              children: [
-                SelectionWidget(role: Role.admin),
-                SelectionWidget(role: Role.lecturer),
-                SelectionWidget(role: Role.student)
-              ],
+              children: Role.values.map((Role role) => SelectionWidget(role: role)).toList(),
             )
           ],
         ),
@@ -59,9 +55,12 @@ class SelectionWidget extends StatelessWidget {
             arguments: {'role': role},
           ),
           child: CircleAvatar(
-            radius: SpaceSize.large * 2,
-            backgroundColor: Colors.blue.shade200,
-            child: Image.asset('assets/images/${role.name}.png'),
+            radius: SpaceSize.large * 2.3,
+            backgroundColor: Colors.indigo.withOpacity(0.1),
+            child: Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Image.asset('assets/images/${role.name}.png'),
+            ),
           ),
         ),
         const SizedBox(height: SpaceSize.medium),

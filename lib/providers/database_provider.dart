@@ -11,10 +11,16 @@ import 'package:flutter/material.dart';
 
 class DatabaseProvider extends ChangeNotifier {
   final DatabaseService _databaseService = DatabaseService();
-  bool isLoading = false;
+  bool _isLoading = false;
+  bool get isLoading => _isLoading;
+
+  changeLoadingStatus(bool status) {
+    _isLoading = status;
+    notifyListeners();
+  }
 
   Future<void> addStudent(Map<String, dynamic> addStudentData) async {
-    isLoading = true;
+    _isLoading = true;
     notifyListeners();
 
     try {
@@ -26,13 +32,13 @@ class DatabaseProvider extends ChangeNotifier {
     } catch (_) {
       throw GenericException();
     } finally {
-      isLoading = false;
+      _isLoading = false;
       notifyListeners();
     }
   }
 
   Future<void> addLecturer(Map<String, dynamic> addLecturerData) async {
-    isLoading = true;
+    _isLoading = true;
     notifyListeners();
 
     try {
@@ -42,13 +48,13 @@ class DatabaseProvider extends ChangeNotifier {
     } catch (_) {
       throw GenericException();
     } finally {
-      isLoading = false;
+      _isLoading = false;
       notifyListeners();
     }
   }
 
   Future<void> loginUser(Map<String, dynamic> userData) async {
-    isLoading = true;
+    _isLoading = true;
     notifyListeners();
 
     try {
@@ -73,13 +79,13 @@ class DatabaseProvider extends ChangeNotifier {
     } catch (e) {
       throw GenericException();
     } finally {
-      isLoading = false;
+      _isLoading = false;
       notifyListeners();
     }
   }
 
   Future<Student> getStudent(String email) async {
-    isLoading = true;
+    _isLoading = true;
     notifyListeners();
 
     try {
@@ -91,13 +97,13 @@ class DatabaseProvider extends ChangeNotifier {
     } catch (_) {
       throw GenericException();
     } finally {
-      isLoading = false;
+      _isLoading = false;
       notifyListeners();
     }
   }
 
   Future<Lecturer> getLecturer(String email) async {
-    isLoading = true;
+    _isLoading = true;
     notifyListeners();
 
     try {
@@ -109,13 +115,13 @@ class DatabaseProvider extends ChangeNotifier {
     } catch (_) {
       throw GenericException();
     } finally {
-      isLoading = false;
+      _isLoading = false;
       notifyListeners();
     }
   }
 
   Future<void> deleteLecturer(String email) async {
-    isLoading = true;
+    _isLoading = true;
     notifyListeners();
 
     try {
@@ -125,13 +131,13 @@ class DatabaseProvider extends ChangeNotifier {
     } catch (_) {
       throw GenericException();
     } finally {
-      isLoading = false;
+      _isLoading = false;
       notifyListeners();
     }
   }
 
   Future<void> deleteStudent(String email) async {
-    isLoading = true;
+    _isLoading = true;
     notifyListeners();
 
     try {
@@ -141,13 +147,13 @@ class DatabaseProvider extends ChangeNotifier {
     } catch (_) {
       throw GenericException();
     } finally {
-      isLoading = false;
+      _isLoading = false;
       notifyListeners();
     }
   }
 
   Future<AttendanceLocation> getClassLocation(String locationName) async {
-    isLoading = true;
+    _isLoading = true;
     notifyListeners();
 
     try {
@@ -161,14 +167,14 @@ class DatabaseProvider extends ChangeNotifier {
     } catch (_) {
       throw GenericException();
     } finally {
-      isLoading = false;
+      _isLoading = false;
       notifyListeners();
     }
   }
 
   Future<void> updateClassLocation(
       String locationName, String polygonPoints) async {
-    isLoading = true;
+    _isLoading = true;
     notifyListeners();
 
     try {
@@ -178,7 +184,7 @@ class DatabaseProvider extends ChangeNotifier {
     } catch (_) {
       throw GenericException();
     } finally {
-      isLoading = false;
+      _isLoading = false;
       notifyListeners();
     }
   }

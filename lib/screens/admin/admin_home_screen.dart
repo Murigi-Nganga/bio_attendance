@@ -3,7 +3,6 @@ import 'package:bio_attendance/screens/admin/tabs/lecturers_tab.dart';
 import 'package:bio_attendance/screens/admin/tabs/reports_tab.dart';
 import 'package:bio_attendance/screens/admin/tabs/students_tab.dart';
 import 'package:bio_attendance/services/local_storage.dart';
-import 'package:bio_attendance/utilities/enums/app_enums.dart';
 import 'package:flutter/material.dart';
 
 class AdminHomeScreen extends StatefulWidget {
@@ -18,9 +17,8 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
     await LocalStorage().deleteUser();
     if (!mounted) return;
     Navigator.of(context).pushNamedAndRemoveUntil(
-      AppRouter.loginRoute,
+      AppRouter.userSelectionRoute,
       (route) => false,
-      arguments: {'role': Role.admin}
     );
   }
 

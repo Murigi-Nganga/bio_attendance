@@ -13,7 +13,7 @@ import 'package:provider/provider.dart';
 class LocationGeofenceScreen extends StatefulWidget {
   const LocationGeofenceScreen({super.key, required this.classLocation});
 
-  final AttendanceLocation? classLocation;
+  final AttendanceLocation classLocation;
 
   @override
   State<LocationGeofenceScreen> createState() => _LocationGeofenceScreenState();
@@ -30,8 +30,6 @@ class _LocationGeofenceScreenState extends State<LocationGeofenceScreen> {
   void initState() {
     super.initState();
 
-    
-    if(widget.classLocation != null) {
       _attLocation = widget.classLocation;
 
       if (_attLocation!.polygonPoints != null) {
@@ -72,9 +70,6 @@ class _LocationGeofenceScreenState extends State<LocationGeofenceScreen> {
           }
         });
       }
-    } else {
-
-    }
   }
 
   //* The Shoelace formula

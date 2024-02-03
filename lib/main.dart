@@ -10,13 +10,19 @@ import 'package:bio_attendance/screens/auth/user_selection_screen.dart';
 import 'package:bio_attendance/screens/student/student_home_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  //* Request for location permissions if not granted
+  await Permission.location.request();
+
   runApp(const App());
 }
 

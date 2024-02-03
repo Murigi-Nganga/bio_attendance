@@ -5,14 +5,16 @@ import 'package:bio_attendance/utilities/dialogs/error_dialog.dart';
 import 'package:bio_attendance/utilities/dialogs/success_dialog.dart';
 import 'package:bio_attendance/utilities/enums/app_enums.dart';
 import 'package:bio_attendance/utilities/extenstions/string_extensions.dart';
-import 'package:bio_attendance/utilities/helpers/validators/input_validators.dart';
+import 'package:bio_attendance/utilities/helpers/input_validators.dart';
 import 'package:bio_attendance/utilities/theme/sizes.dart';
 import 'package:bio_attendance/widgets/custom_form_field.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({Key? key}) : super(key: key);
+  const LoginScreen({Key? key, required this.role}) : super(key: key);
+
+  final Role role;
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -32,11 +34,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final arguments =
-        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>;
-    final Role role = arguments['role']!;
-
-    final homeRoute = switch (role) {
+    final homeRoute = switch (widget.role) {
       Role.admin => AppRouter.adminHomeRoute,
       Role.lecturer => AppRouter.lecturerHomeRoute,
       Role.student => AppRouter.studentHomeRoute,
@@ -54,11 +52,11 @@ class _LoginScreenState extends State<LoginScreen> {
             children: [
               SizedBox(
                 height: MediaQuery.of(context).size.height * 0.3,
-                child: Image.asset('assets/images/${role.name}.png'),
+                child: Image.asset('assets/images/${widget.role.name}.png'),
               ),
               const SizedBox(height: SpaceSize.large * 2),
               Text(
-                role.name.capitalizeFirstChar(),
+                widget.role.name.capitalizeFirstChar(),
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 22,
@@ -101,7 +99,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   try {
                                     await databaseProvider.loginUser({
                                       'email': email,
-                                      'role': role,
+                                      'role': widget.role,
                                       'password': password,
                                     });
                                     if (!mounted) return;

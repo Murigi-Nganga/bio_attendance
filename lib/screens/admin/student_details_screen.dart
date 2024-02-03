@@ -9,13 +9,12 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class StudentDetailsScreen extends StatelessWidget {
-  const StudentDetailsScreen({super.key});
+  const StudentDetailsScreen({super.key, required this.student});
+
+  final Student student;
 
   @override
   Widget build(BuildContext context) {
-    final args =
-        ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
-    final Student student = args['student'];
 
     return Scaffold(
       appBar: AppBar(

@@ -2,7 +2,6 @@ import 'package:bio_attendance/router/app_router.dart';
 import 'package:bio_attendance/screens/lecturer/tabs/reports_tab.dart';
 import 'package:bio_attendance/screens/lecturer/tabs/class_locations_tab.dart';
 import 'package:bio_attendance/services/local_storage.dart';
-import 'package:bio_attendance/utilities/enums/app_enums.dart';
 import 'package:flutter/material.dart';
 
 class LecturerHomeScreen extends StatefulWidget {
@@ -17,9 +16,8 @@ class _LecturerHomeScreenState extends State<LecturerHomeScreen> {
     await LocalStorage().deleteUser();
     if (!mounted) return;
     Navigator.of(context).pushNamedAndRemoveUntil(
-      AppRouter.loginRoute,
+      AppRouter.userSelectionRoute,
       (route) => false,
-      arguments: {'role': Role.lecturer}
     );
   }
 

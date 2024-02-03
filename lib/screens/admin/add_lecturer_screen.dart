@@ -2,7 +2,7 @@ import 'package:bio_attendance/providers/database_provider.dart';
 import 'package:bio_attendance/services/exceptions.dart';
 import 'package:bio_attendance/utilities/dialogs/error_dialog.dart';
 import 'package:bio_attendance/utilities/dialogs/success_dialog.dart';
-import 'package:bio_attendance/utilities/helpers/validators/input_validators.dart';
+import 'package:bio_attendance/utilities/helpers/input_validators.dart';
 import 'package:bio_attendance/utilities/theme/sizes.dart';
 import 'package:bio_attendance/widgets/custom_form_field.dart';
 import 'package:flutter/material.dart';

@@ -9,14 +9,12 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class LecturerDetailsScreen extends StatelessWidget {
-  const LecturerDetailsScreen({super.key});
+  const LecturerDetailsScreen({super.key, required this.lecturer});
+
+  final Lecturer lecturer;
 
   @override
   Widget build(BuildContext context) {
-    final args =
-        ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
-    final Lecturer lecturer = args['lecturer'];
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Lecturer Details'),
