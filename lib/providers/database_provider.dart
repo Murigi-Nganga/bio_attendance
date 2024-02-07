@@ -66,6 +66,13 @@ class DatabaseProvider extends ChangeNotifier {
         if (dbUser['role'] != (userData['role'] as Role).name) {
           throw InvalidRoleException();
         }
+        if (dbUser['role'] == 'student') {
+          Student student = Student.fromJson(
+              await _databaseService.getStudent(userData['email']));
+            
+          await LocalStorage().saveCourseName(student.course);
+        }
+
         await LocalStorage().saveUser(AuthUser.fromJSON(userData));
       } else {
         throw EmailPasswordMismatchException();

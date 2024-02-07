@@ -17,6 +17,16 @@ class LocalStorage {
     await prefs.setString('role', authUser.role.name);
   }
 
+  Future<void> saveCourseName(String courseName) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('course_name', courseName);
+  }
+
+  Future<String?> getCourseName() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString('course_name');
+  }
+
   Future<AuthUser?> getUser() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? email = prefs.getString('email');
@@ -38,5 +48,8 @@ class LocalStorage {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.remove('email');
     prefs.remove('role');
+    if (prefs.containsKey('course_name')) {
+      prefs.remove('course_name');
+    }
   }
 }

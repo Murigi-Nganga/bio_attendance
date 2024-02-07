@@ -2,6 +2,7 @@ import 'package:bio_attendance/data/course_list.dart';
 import 'package:bio_attendance/models/attendance_location.dart';
 import 'package:bio_attendance/providers/database_provider.dart';
 import 'package:bio_attendance/services/exceptions.dart';
+import 'package:bio_attendance/services/local_storage.dart';
 import 'package:bio_attendance/utilities/dialogs/error_dialog.dart';
 import 'package:bio_attendance/utilities/dialogs/success_dialog.dart';
 import 'package:bio_attendance/utilities/helpers/attendance_utils.dart';
@@ -21,8 +22,7 @@ class AttendanceTab extends StatefulWidget {
 }
 
 class _AttendanceTabState extends State<AttendanceTab> {
-  //TODO: Fetch from preferences or database
-  final _studentCourseName = CourseList.courseList[0].name;
+  String? _studentCourseName;
 
   final LocalAuthentication auth = LocalAuthentication();
   bool? isAuthenticated;
@@ -31,10 +31,18 @@ class _AttendanceTabState extends State<AttendanceTab> {
 
   @override
   void initState() {
-    _selectedCourseUnit = CourseList.getUnitsForYearAndCourse(
-            year: _yearOfStudy, courseName: _studentCourseName)
-        .first;
+    _initializeData();
     super.initState();
+  }
+
+  Future<void> _initializeData() async {
+    _studentCourseName = await LocalStorage().getCourseName();
+    _selectedCourseUnit = CourseList.getUnitsForYearAndCourse(
+            year: _yearOfStudy, courseName: _studentCourseName!)
+        .first;
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   Future<void> _submitDetails(
@@ -55,7 +63,9 @@ class _AttendanceTabState extends State<AttendanceTab> {
       if (attLocation.polygonPoints == null) {
         if (!mounted) return;
         showErrorDialog(
-            context, '$_selectedCourseUnit does not have a defined location');
+            context,
+            '$_selectedCourseUnit taught in location $courseLocation'
+            'does not have a defined geofence');
         databaseProvider.changeLoadingStatus(false);
         return;
       }
@@ -137,97 +147,99 @@ class _AttendanceTabState extends State<AttendanceTab> {
         });
         showErrorDialog(context, 'Could not do authentication');
       }
-    }
+    } //TODO: Add an else block if features not "activated"
 
     databaseProvider.changeLoadingStatus(false);
   }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Text(
-          _studentCourseName,
-          textAlign: TextAlign.center,
-          style: const TextStyle(
-            fontSize: FontSize.medium,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        const SizedBox(
-          height: SpaceSize.medium,
-        ),
-        const Text('Select year of study'),
-        const SizedBox(height: SpaceSize.small),
-        AppDropdownButton<int>(
-          items: [1, 2, 3, 4]
-              .map(
-                (number) => DropdownMenuItem(
-                  value: number,
-                  child: Text(number.toString()),
+    return _studentCourseName == null
+        ? const LinearProgressIndicator()
+        : Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                _studentCourseName!,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: FontSize.medium,
+                  fontWeight: FontWeight.w600,
                 ),
-              )
-              .toList(),
-          value: _yearOfStudy,
-          onChanged: (newValue) {
-            setState(() {
-              _yearOfStudy = newValue!;
-              _selectedCourseUnit = CourseList.getUnitsForYearAndCourse(
-                      year: _yearOfStudy, courseName: _studentCourseName)
-                  .first;
-            });
-          },
-        ),
-        const SizedBox(height: SpaceSize.medium),
-        const Text(
-          'Select course unit',
-        ),
-        const SizedBox(height: SpaceSize.small),
-        AppDropdownButton<String>(
-          items: CourseList.getUnitsForYearAndCourse(
-                  year: _yearOfStudy, courseName: _studentCourseName)
-              .map(
-                (unitName) => DropdownMenuItem(
-                  value: unitName,
-                  child: Text(unitName),
-                ),
-              )
-              .toList(),
-          value: _selectedCourseUnit,
-          onChanged: (newValue) {
-            setState(() {
-              _selectedCourseUnit = newValue!;
-            });
-          },
-        ),
-        const SizedBox(height: SpaceSize.large),
-        Consumer<DatabaseProvider>(
-          builder: (_, databaseProvider, __) {
-            if (databaseProvider.isLoading) {
-              return const LinearProgressIndicator();
-            }
-            return ElevatedButton(
-              onPressed: () => _submitDetails({
-                'course': _studentCourseName,
-                'year_of_study': _yearOfStudy,
-                'course_unit': _selectedCourseUnit,
-                'time_signed': DateTime.now(),
-              }, databaseProvider),
-              child: const Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text('Authenticate'),
-                  SizedBox(width: SpaceSize.medium),
-                  Icon(Icons.fingerprint_rounded)
-                ],
               ),
-            );
-          },
-        ),
-        const SizedBox(height: 20),
-      ],
-    );
+              const SizedBox(
+                height: SpaceSize.medium,
+              ),
+              const Text('Select year of study'),
+              const SizedBox(height: SpaceSize.small),
+              AppDropdownButton<int>(
+                items: [1, 2, 3, 4]
+                    .map(
+                      (number) => DropdownMenuItem(
+                        value: number,
+                        child: Text(number.toString()),
+                      ),
+                    )
+                    .toList(),
+                value: _yearOfStudy,
+                onChanged: (newValue) {
+                  setState(() {
+                    _yearOfStudy = newValue!;
+                    _selectedCourseUnit = CourseList.getUnitsForYearAndCourse(
+                            year: _yearOfStudy, courseName: _studentCourseName!)
+                        .first;
+                  });
+                },
+              ),
+              const SizedBox(height: SpaceSize.medium),
+              const Text(
+                'Select course unit',
+              ),
+              const SizedBox(height: SpaceSize.small),
+              AppDropdownButton<String>(
+                items: CourseList.getUnitsForYearAndCourse(
+                        year: _yearOfStudy, courseName: _studentCourseName!)
+                    .map(
+                      (unitName) => DropdownMenuItem(
+                        value: unitName,
+                        child: Text(unitName),
+                      ),
+                    )
+                    .toList(),
+                value: _selectedCourseUnit,
+                onChanged: (newValue) {
+                  setState(() {
+                    _selectedCourseUnit = newValue!;
+                  });
+                },
+              ),
+              const SizedBox(height: SpaceSize.large),
+              Consumer<DatabaseProvider>(
+                builder: (_, databaseProvider, __) {
+                  if (databaseProvider.isLoading) {
+                    return const LinearProgressIndicator();
+                  }
+                  return ElevatedButton(
+                    onPressed: () => _submitDetails({
+                      'course': _studentCourseName,
+                      'year_of_study': _yearOfStudy,
+                      'course_unit': _selectedCourseUnit,
+                      'time_signed': DateTime.now(),
+                    }, databaseProvider),
+                    child: const Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text('Authenticate'),
+                        SizedBox(width: SpaceSize.medium),
+                        Icon(Icons.fingerprint_rounded)
+                      ],
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(height: 20),
+            ],
+          );
   }
 }

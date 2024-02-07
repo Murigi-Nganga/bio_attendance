@@ -4,6 +4,7 @@ class AuthUser {
   final String email;
   final Role role;
 
+
   AuthUser({
     required this.email,
     required this.role,
