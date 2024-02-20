@@ -71,7 +71,7 @@ class _LecturersTabState extends State<LecturersTab> {
                           } on UserNotFoundException {
                             showErrorDialog(
                               context,
-                              UserNotFoundException().toString(),
+                              const UserNotFoundException(identifier: 'email').toString(),
                             );
                           } on GenericException {
                             showErrorDialog(

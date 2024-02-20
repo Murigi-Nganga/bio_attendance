@@ -59,29 +59,29 @@ class DatabaseProvider extends ChangeNotifier {
 
     try {
       Map<String, dynamic> dbUser =
-          await _databaseService.getUser(userData['email']);
+          await _databaseService.getUser(userData['identifier']);
 
-      if (userData['email'] == dbUser['email'] &&
+      if (userData['identifier'] == dbUser['identifier'] &&
           comparePasswords(dbUser['password'], userData['password'])) {
         if (dbUser['role'] != (userData['role'] as Role).name) {
           throw InvalidRoleException();
         }
         if (dbUser['role'] == 'student') {
           Student student = Student.fromJson(
-              await _databaseService.getStudent(userData['email']));
+              await _databaseService.getStudent(userData['identifier']));
             
           await LocalStorage().saveCourseName(student.course);
         }
 
         await LocalStorage().saveUser(AuthUser.fromJSON(userData));
       } else {
-        throw EmailPasswordMismatchException();
+        throw IdentifierPasswordMismatchException();
       }
     } on UserNotFoundException {
       rethrow;
     } on InvalidRoleException {
       rethrow;
-    } on EmailPasswordMismatchException {
+    } on IdentifierPasswordMismatchException {
       rethrow;
     } catch (e) {
       throw GenericException();
@@ -91,13 +91,13 @@ class DatabaseProvider extends ChangeNotifier {
     }
   }
 
-  Future<Student> getStudent(String email) async {
+  Future<Student> getStudent(String regNo) async {
     _isLoading = true;
     notifyListeners();
 
     try {
       Map<String, dynamic> studentData =
-          await _databaseService.getStudent(email);
+          await _databaseService.getStudent(regNo);
       return Student.fromJson(studentData);
     } on UserNotFoundException {
       rethrow;
@@ -143,12 +143,12 @@ class DatabaseProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> deleteStudent(String email) async {
+  Future<void> deleteStudent(String regNo) async {
     _isLoading = true;
     notifyListeners();
 
     try {
-      await _databaseService.deleteStudent(email);
+      await _databaseService.deleteStudent(regNo);
     } on UserNotFoundException {
       rethrow;
     } catch (_) {

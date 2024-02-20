@@ -56,7 +56,7 @@ class StudentDetailsScreen extends StatelessWidget {
                       if (shouldDelete == false) return;
 
                       await databaseProvider
-                          .deleteStudent(student.email)
+                          .deleteStudent(student.regNo)
                           .then((_) {
                         showSuccessDialog(
                           context,
@@ -69,7 +69,7 @@ class StudentDetailsScreen extends StatelessWidget {
                     } on UserNotFoundException {
                       showErrorDialog(
                         context,
-                        UserNotFoundException().toString(),
+                        const UserNotFoundException(identifier: 'registration number').toString(),
                       );
                     } on GenericException {
                       showErrorDialog(

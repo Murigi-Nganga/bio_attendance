@@ -76,7 +76,7 @@ class LecturerDetailsScreen extends StatelessWidget {
                     } on UserNotFoundException {
                       showErrorDialog(
                         context,
-                        UserNotFoundException().toString(),
+                        const UserNotFoundException(identifier: 'email').toString(),
                       );
                     } on GenericException {
                       showErrorDialog(

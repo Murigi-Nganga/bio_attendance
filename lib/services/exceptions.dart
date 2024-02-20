@@ -7,9 +7,13 @@ class GenericException implements Exception {
 }
 
 class UserNotFoundException implements Exception {
+  const UserNotFoundException({this.identifier});
+
+  final String? identifier;
+
   @override
   String toString() {
-    return 'User with the specified email not found';
+    return 'User with the specified $identifier not found';
   }
 }
 
@@ -20,7 +24,7 @@ class InvalidRoleException implements Exception {
   }
 }
 
-class EmailPasswordMismatchException implements Exception {
+class IdentifierPasswordMismatchException implements Exception {
   @override
   String toString() {
     return 'Incorrect password entered';

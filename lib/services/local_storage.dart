@@ -13,7 +13,7 @@ class LocalStorage {
 
   Future<void> saveUser(AuthUser authUser) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setString('email', authUser.email);
+    await prefs.setString('identifier', authUser.identifier);
     await prefs.setString('role', authUser.role.name);
   }
 
@@ -29,27 +29,21 @@ class LocalStorage {
 
   Future<AuthUser?> getUser() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? email = prefs.getString('email');
+    String? identifier = prefs.getString('identifier');
     Role? role = prefs.getString('role') == null
         ? null
         : Role.values.byName(prefs.getString('role')!);
 
-    if (role == null || email == null) {
-      return null;
-    }
+    if (role == null || identifier == null) return null;
 
     return AuthUser(
-      email: email,
+      identifier: identifier,
       role: role,
     );
   }
 
   Future<void> deleteUser() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.remove('email');
-    prefs.remove('role');
-    if (prefs.containsKey('course_name')) {
-      prefs.remove('course_name');
-    }
+    await prefs.clear();
   }
 }

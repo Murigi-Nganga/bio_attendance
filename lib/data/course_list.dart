@@ -148,4 +148,12 @@ class CourseList {
 
     return locations;
   }
+
+  static List<CourseUnit> getUnitsForCourse({
+    required String courseName,
+  }) {
+    Course selectedCourse =
+        courseList.firstWhere((course) => course.name == courseName);
+    return selectedCourse.units;
+  }
 }

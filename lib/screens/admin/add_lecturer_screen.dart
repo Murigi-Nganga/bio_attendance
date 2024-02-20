@@ -1,9 +1,12 @@
+import 'package:bio_attendance/data/course_list.dart';
+import 'package:bio_attendance/models/course_unit.dart';
 import 'package:bio_attendance/providers/database_provider.dart';
 import 'package:bio_attendance/services/exceptions.dart';
 import 'package:bio_attendance/utilities/dialogs/error_dialog.dart';
 import 'package:bio_attendance/utilities/dialogs/success_dialog.dart';
 import 'package:bio_attendance/utilities/helpers/input_validators.dart';
 import 'package:bio_attendance/utilities/theme/sizes.dart';
+import 'package:bio_attendance/widgets/app_dropdown_button.dart';
 import 'package:bio_attendance/widgets/custom_form_field.dart';
 import 'package:flutter/material.dart';
 import 'package:multi_select_flutter/multi_select_flutter.dart';
@@ -22,22 +25,23 @@ class _RegisterViewState extends State<AddLecturerScreen> {
   late final TextEditingController _name;
   late final TextEditingController _password;
   final _formKey = GlobalKey<FormState>();
-
-  final List<String> _courseUnitValues = [
-    'Linear Algebra',
-    'Introduction to Programming',
-    'System Analysis and Design',
-    'Database Design',
-    'Mobile Development',
-    'Data Structures and Algorithms',
-    'Cloud Computing',
-    'Compiler Construction'
+  final List<String> _courseValues = [
+    'Information Technology',
+    'Computer Science',
+    'Business Information Technology'
   ];
 
-  List<String> _selectedUnits = [];
+  late List<CourseUnit> _courseUnitValues;
+
+  late String _selectedCourse;
+  late List<String> _selectedUnits;
 
   @override
   void initState() {
+    _selectedCourse = _courseValues[0];
+    _courseUnitValues =
+        CourseList.getUnitsForCourse(courseName: _selectedCourse);
+    _selectedUnits = [];
     _email = TextEditingController();
     _name = TextEditingController();
     _password = TextEditingController();
@@ -105,12 +109,36 @@ class _RegisterViewState extends State<AddLecturerScreen> {
                     const SizedBox(
                       height: SpaceSize.medium,
                     ),
+                    SizedBox(
+                      width: double.infinity,
+                      child: AppDropdownButton<String>(
+                        items: _courseValues
+                            .map(
+                              (courseValue) => DropdownMenuItem(
+                                value: courseValue,
+                                child: Text(courseValue),
+                              ),
+                            )
+                            .toList(),
+                        value: _selectedCourse,
+                        onChanged: (newValue) {
+                          setState(() {
+                            _selectedCourse = newValue!;
+                            _courseUnitValues = CourseList.getUnitsForCourse(
+                                courseName: _selectedCourse);
+                            _selectedUnits = [];
+                          });
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: SpaceSize.medium),
                     MultiSelectDialogField(
                       items: _courseUnitValues
-                          .map((courseUnit) =>
-                              MultiSelectItem<String>(courseUnit, courseUnit))
+                          .map((courseUnit) => MultiSelectItem<String>(
+                              courseUnit.name,
+                              "${courseUnit.name} - Year ${courseUnit.yearStudied}"))
                           .toList(),
-                      title: const Text("Course Units"),
+                      title: Text("Course Units for $_selectedCourse"),
                       selectedColor: Colors.blue,
                       decoration: BoxDecoration(
                         color: Colors.blue.withOpacity(0.1),
@@ -149,7 +177,7 @@ class _RegisterViewState extends State<AddLecturerScreen> {
                           child: ElevatedButton(
                             onPressed: () async {
                               if (!_formKey.currentState!.validate()) return;
-                              
+
                               final email = _email.text;
                               final name = _name.text;
                               final password = _password.text;

@@ -17,18 +17,18 @@ class StudentsTab extends StatefulWidget {
 }
 
 class _StudentsTabState extends State<StudentsTab> {
-  late final TextEditingController _email;
+  late final TextEditingController _regNo;
   final _searchFormKey = GlobalKey<FormState>();
 
   @override
   void initState() {
-    _email = TextEditingController();
+    _regNo = TextEditingController();
     super.initState();
   }
 
   @override
   void dispose() {
-    _email.dispose();
+    _regNo.dispose();
     super.dispose();
   }
 
@@ -42,11 +42,11 @@ class _StudentsTabState extends State<StudentsTab> {
           child: Column(
             children: [
               CustomFormField(
-                controller: _email,
-                labelText: 'Student Email Address',
+                controller: _regNo,
+                labelText: 'Student registration Number',
                 textInputAction: TextInputAction.done,
-                prefixIcon: Icons.email_rounded,
-                validator: validateEmail,
+                prefixIcon: Icons.numbers_rounded,
+                validator: validateRegNumber,
               ),
               const SizedBox(height: SpaceSize.large),
               Consumer<DatabaseProvider>(
@@ -61,7 +61,7 @@ class _StudentsTabState extends State<StudentsTab> {
                           if (!_searchFormKey.currentState!.validate()) return;
                           try {
                             Student student =
-                                await databaseProvider.getStudent(_email.text);
+                                await databaseProvider.getStudent(_regNo.text);
 
                             if (!mounted) return;
                             Navigator.of(context).pushNamed(
@@ -71,7 +71,7 @@ class _StudentsTabState extends State<StudentsTab> {
                           } on UserNotFoundException {
                             showErrorDialog(
                               context,
-                              UserNotFoundException().toString(),
+                              const UserNotFoundException(identifier: 'registration number').toString(),
                             );
                           } on GenericException {
                             showErrorDialog(

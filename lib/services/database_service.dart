@@ -19,28 +19,28 @@ class DatabaseService {
   }
 
   // Get AuthUser
-  Future<Map<String, dynamic>> getUser(String email) async {
+  Future<Map<String, dynamic>> getUser(String identifier) async {
     QuerySnapshot querySnapshot =
-        await _usersCollection.where('email', isEqualTo: email).get();
+        await _usersCollection.where('identifier', isEqualTo: identifier).get();
 
     if (querySnapshot.docs.isNotEmpty) {
       DocumentSnapshot documentSnapshot = querySnapshot.docs.first;
       return documentSnapshot.data() as Map<String, dynamic>;
     } else {
-      throw UserNotFoundException();
+      throw const UserNotFoundException();
     }
   }
 
   // Get Student's details
-  Future<Map<String, dynamic>> getStudent(String email) async {
+  Future<Map<String, dynamic>> getStudent(String regNo) async {
     QuerySnapshot querySnapshot =
-        await _studentsCollection.where('email', isEqualTo: email).get();
+        await _studentsCollection.where('reg_no', isEqualTo: regNo).get();
 
     if (querySnapshot.docs.isNotEmpty) {
       DocumentSnapshot documentSnapshot = querySnapshot.docs.first;
       return documentSnapshot.data() as Map<String, dynamic>;
     } else {
-      throw UserNotFoundException();
+      throw const UserNotFoundException();
     }
   }
 
@@ -53,7 +53,7 @@ class DatabaseService {
       DocumentSnapshot documentSnapshot = querySnapshot.docs.first;
       return documentSnapshot.data() as Map<String, dynamic>;
     } else {
-      throw UserNotFoundException();
+      throw const UserNotFoundException();
     }
   }
 
@@ -73,7 +73,7 @@ class DatabaseService {
       }
 
       await _usersCollection.add({
-        'email': studentData['email'],
+        'identifier': studentData['reg_no'],
         'role': Role.student.name,
         'password': hashPassword(studentData['password']),
       });
@@ -100,7 +100,7 @@ class DatabaseService {
       }
     } on UserNotFoundException {
       await _usersCollection.add({
-        'email': lecturerData['email'],
+        'identifier': lecturerData['email'],
         'role': Role.lecturer.name,
         'password': hashPassword(lecturerData['password']),
       });
@@ -115,31 +115,31 @@ class DatabaseService {
     }
   }
 
-  Future<void> _deleteUser(String email) async {
+  Future<void> _deleteUser(String identifier) async {
     try {
       QuerySnapshot querySnapshot =
-          await _usersCollection.where('email', isEqualTo: email).get();
+          await _usersCollection.where('identifier', isEqualTo: identifier).get();
 
       if (querySnapshot.docs.isNotEmpty) {
         await querySnapshot.docs.first.reference.delete();
       } else {
-        throw UserNotFoundException();
+        throw const UserNotFoundException();
       }
     } on UserNotFoundException {
       rethrow;
     }
   }
 
-  Future<void> deleteStudent(String email) async {
+  Future<void> deleteStudent(String regNo) async {
     try {
       QuerySnapshot querySnapshot =
-          await _studentsCollection.where('email', isEqualTo: email).get();
+          await _studentsCollection.where('reg_no', isEqualTo: regNo).get();
 
       if (querySnapshot.docs.isNotEmpty) {
         await querySnapshot.docs.first.reference.delete();
-        await _deleteUser(email);
+        await _deleteUser(regNo);
       } else {
-        throw UserNotFoundException();
+        throw const UserNotFoundException();
       }
     } on UserNotFoundException {
       rethrow;
@@ -155,7 +155,7 @@ class DatabaseService {
         await querySnapshot.docs.first.reference.delete();
         await _deleteUser(email);
       } else {
-        throw UserNotFoundException();
+        throw const UserNotFoundException();
       }
     } on UserNotFoundException {
       rethrow;

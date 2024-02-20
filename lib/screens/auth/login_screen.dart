@@ -21,13 +21,14 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final TextEditingController _email = TextEditingController();
+  //_identifier is an email or password
+  final TextEditingController _identifier = TextEditingController();
   late final TextEditingController _password = TextEditingController();
   final _loginFormKey = GlobalKey<FormState>();
 
   @override
   void dispose() {
-    _email.dispose();
+    _identifier.dispose();
     _password.dispose();
     super.dispose();
   }
@@ -67,13 +68,20 @@ class _LoginScreenState extends State<LoginScreen> {
                 key: _loginFormKey,
                 child: Column(
                   children: [
-                    CustomFormField(
-                      controller: _email,
-                      textInputType: TextInputType.emailAddress,
-                      labelText: 'Email Address',
-                      prefixIcon: Icons.email_rounded,
-                      validator: validateEmail,
-                    ),
+                    widget.role == Role.student
+                        ? CustomFormField(
+                            controller: _identifier,
+                            labelText: 'Registration Number',
+                            prefixIcon: Icons.numbers_rounded,
+                            validator: validateRegNumber,
+                          )
+                        : CustomFormField(
+                            controller: _identifier,
+                            textInputType: TextInputType.emailAddress,
+                            labelText: 'Email Address',
+                            prefixIcon: Icons.email_rounded,
+                            validator: validateEmail,
+                          ),
                     const SizedBox(height: SpaceSize.medium),
                     CustomFormField(
                       controller: _password,
@@ -94,11 +102,11 @@ class _LoginScreenState extends State<LoginScreen> {
                             child: ElevatedButton(
                               onPressed: () async {
                                 if (_loginFormKey.currentState!.validate()) {
-                                  final email = _email.text;
+                                  final identifier = _identifier.text;
                                   final password = _password.text;
                                   try {
                                     await databaseProvider.loginUser({
-                                      'email': email,
+                                      'identifier': identifier,
                                       'role': widget.role,
                                       'password': password,
                                     });
@@ -106,7 +114,12 @@ class _LoginScreenState extends State<LoginScreen> {
                                   } on UserNotFoundException {
                                     await showErrorDialog(
                                       context,
-                                      UserNotFoundException().toString(),
+                                      UserNotFoundException(
+                                              identifier:
+                                                  widget.role == Role.student
+                                                      ? 'registration number'
+                                                      : 'email')
+                                          .toString(),
                                     );
                                     return;
                                   } on InvalidRoleException {
@@ -115,10 +128,10 @@ class _LoginScreenState extends State<LoginScreen> {
                                       InvalidRoleException().toString(),
                                     );
                                     return;
-                                  } on EmailPasswordMismatchException {
+                                  } on IdentifierPasswordMismatchException {
                                     await showErrorDialog(
                                       context,
-                                      EmailPasswordMismatchException()
+                                      IdentifierPasswordMismatchException()
                                           .toString(),
                                     );
                                     return;

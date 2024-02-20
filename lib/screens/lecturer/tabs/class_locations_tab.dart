@@ -26,7 +26,7 @@ class _ClassLocationsTabState extends State<ClassLocationsTab> {
   }
 
   _fetchLecturerUnits() async {
-    lecturerEmail = (await LocalStorage().getUser())!.email;
+    lecturerEmail = (await LocalStorage().getUser())!.identifier;
     lecturer = await databaseProvider.getLecturer(lecturerEmail);
     if (mounted) {
       setState(() {});

@@ -1,22 +1,22 @@
 import 'package:bio_attendance/utilities/enums/app_enums.dart';
 
 class AuthUser {
-  final String email;
+  final String identifier;
   final Role role;
 
 
   AuthUser({
-    required this.email,
+    required this.identifier,
     required this.role,
   });
 
   factory AuthUser.fromJSON(Map<String, dynamic> data) => AuthUser(
-        email: data['email'],
+        identifier: data['identifier'],
         role: data['role'],
       );
 
   Map<String, dynamic> toJSON() => {
-        'email': email,
+        'identifier': identifier,
         'role': role,
       };
 }
