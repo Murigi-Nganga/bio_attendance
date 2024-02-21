@@ -11,7 +11,7 @@ import 'package:bio_attendance/screens/auth/user_selection_screen.dart';
 import 'package:bio_attendance/screens/lecturer/lecturer_home_screen.dart';
 import 'package:bio_attendance/screens/lecturer/location_geofence_screen.dart';
 import 'package:bio_attendance/screens/student/student_home_screen.dart';
-import 'package:bio_attendance/utilities/enums/app_enums.dart';
+import 'package:bio_attendance/models/role.dart';
 import 'package:flutter/material.dart';
 
 class AppRouter {

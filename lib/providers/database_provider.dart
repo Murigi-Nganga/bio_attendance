@@ -5,7 +5,7 @@ import 'package:bio_attendance/models/student.dart';
 import 'package:bio_attendance/services/database_service.dart';
 import 'package:bio_attendance/services/exceptions.dart';
 import 'package:bio_attendance/services/local_storage.dart';
-import 'package:bio_attendance/utilities/enums/app_enums.dart';
+import 'package:bio_attendance/models/role.dart';
 import 'package:bio_attendance/utilities/helpers/password_hash.dart';
 import 'package:flutter/material.dart';
 
@@ -69,7 +69,7 @@ class DatabaseProvider extends ChangeNotifier {
         if (dbUser['role'] == 'student') {
           Student student = Student.fromJson(
               await _databaseService.getStudent(userData['identifier']));
-            
+
           await LocalStorage().saveCourseName(student.course);
         }
 

@@ -1,5 +1,5 @@
 import 'package:bio_attendance/services/exceptions.dart';
-import 'package:bio_attendance/utilities/enums/app_enums.dart';
+import 'package:bio_attendance/models/role.dart';
 import 'package:bio_attendance/utilities/helpers/password_hash.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 

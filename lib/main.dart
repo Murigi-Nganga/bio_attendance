@@ -4,7 +4,7 @@ import 'package:bio_attendance/router/app_router.dart';
 import 'package:bio_attendance/screens/admin/admin_home_screen.dart';
 import 'package:bio_attendance/screens/lecturer/lecturer_home_screen.dart';
 import 'package:bio_attendance/services/local_storage.dart';
-import 'package:bio_attendance/utilities/enums/app_enums.dart';
+import 'package:bio_attendance/models/role.dart';
 import 'package:bio_attendance/utilities/theme/app_theme.dart';
 import 'package:bio_attendance/firebase_options.dart';
 import 'package:bio_attendance/screens/auth/user_selection_screen.dart';
@@ -30,10 +30,12 @@ void main() async {
 
   //* Register hive adaptors
   Hive.registerAdapter(AuthUserAdapter());
+  Hive.registerAdapter(RoleAdapter());
 
   //* Initialize hive boxes
-  await Hive.openBox<AuthUser>('app_user');
-  await Hive.openLazyBox<String>('course_name');
+  await Hive.openBox<AuthUser>('user');
+  await Hive.openBox<String>('course');
+
 
   runApp(const App());
 }
@@ -51,15 +53,15 @@ class App extends StatelessWidget {
         title: 'Biometric Attendance Application',
         theme: appTheme,
         debugShowCheckedModeBanner: false,
-        home: const MainPage(),
+        home: const RootPage(),
         onGenerateRoute: AppRouter.generateRoute,
       ),
     );
   }
 }
 
-class MainPage extends StatelessWidget {
-  const MainPage({super.key});
+class RootPage extends StatelessWidget {
+  const RootPage({super.key});
 
   @override
   Widget build(BuildContext context) {

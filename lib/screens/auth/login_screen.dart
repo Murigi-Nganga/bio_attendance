@@ -3,7 +3,7 @@ import 'package:bio_attendance/router/app_router.dart';
 import 'package:bio_attendance/services/exceptions.dart';
 import 'package:bio_attendance/utilities/dialogs/error_dialog.dart';
 import 'package:bio_attendance/utilities/dialogs/success_dialog.dart';
-import 'package:bio_attendance/utilities/enums/app_enums.dart';
+import 'package:bio_attendance/models/role.dart';
 import 'package:bio_attendance/utilities/extenstions/string_extensions.dart';
 import 'package:bio_attendance/utilities/helpers/input_validators.dart';
 import 'package:bio_attendance/utilities/theme/sizes.dart';

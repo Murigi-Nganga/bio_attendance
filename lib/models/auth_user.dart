@@ -1,4 +1,4 @@
-import 'package:bio_attendance/utilities/enums/app_enums.dart';
+import 'package:bio_attendance/models/role.dart';
 import 'package:hive/hive.dart';
 
 part 'auth_user.g.dart';
