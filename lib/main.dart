@@ -28,14 +28,13 @@ void main() async {
   //* Initialize hive
   await Hive.initFlutter();
 
-  //* Register hive adaptors
-  Hive.registerAdapter(AuthUserAdapter());
-  Hive.registerAdapter(RoleAdapter());
+  //* Register hive adapters
+  Hive.registerAdapter<AuthUser>(AuthUserAdapter());
+  Hive.registerAdapter<Role>(RoleAdapter());
 
   //* Initialize hive boxes
   await Hive.openBox<AuthUser>('user');
   await Hive.openBox<String>('course');
-
 
   runApp(const App());
 }

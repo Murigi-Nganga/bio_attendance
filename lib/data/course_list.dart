@@ -156,4 +156,13 @@ class CourseList {
         courseList.firstWhere((course) => course.name == courseName);
     return selectedCourse.units;
   }
+
+  static List<String> getUnitNamesForCourse({
+    required String courseName,
+  }) {
+    Course selectedCourse =
+        courseList.firstWhere((course) => course.name == courseName);
+    return selectedCourse.units.map((unit) => unit.name).toList();
+  }
+  
 }

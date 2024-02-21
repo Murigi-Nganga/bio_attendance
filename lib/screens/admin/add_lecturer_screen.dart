@@ -109,27 +109,23 @@ class _RegisterViewState extends State<AddLecturerScreen> {
                     const SizedBox(
                       height: SpaceSize.medium,
                     ),
-                    SizedBox(
-                      width: double.infinity,
-                      child: AppDropdownButton<String>(
-                        items: _courseValues
-                            .map(
-                              (courseValue) => DropdownMenuItem(
-                                value: courseValue,
-                                child: Text(courseValue),
-                              ),
-                            )
-                            .toList(),
-                        value: _selectedCourse,
-                        onChanged: (newValue) {
-                          setState(() {
-                            _selectedCourse = newValue!;
-                            _courseUnitValues = CourseList.getUnitsForCourse(
-                                courseName: _selectedCourse);
-                            _selectedUnits = [];
-                          });
-                        },
-                      ),
+                    AppDropdownButton<String>(
+                      items: _courseValues
+                          .map(
+                            (courseValue) => DropdownMenuItem(
+                              value: courseValue,
+                              child: Text(courseValue),
+                            ),
+                          )
+                          .toList(),
+                      value: _selectedCourse,
+                      onChanged: (newValue) {
+                        setState(() {
+                          _selectedCourse = newValue!;
+                          _courseUnitValues = CourseList.getUnitsForCourse(
+                              courseName: _selectedCourse);
+                        });
+                      },
                     ),
                     const SizedBox(height: SpaceSize.medium),
                     MultiSelectDialogField(
@@ -162,7 +158,11 @@ class _RegisterViewState extends State<AddLecturerScreen> {
                       ),
                       onConfirm: (results) {
                         setState(() {
-                          _selectedUnits = results;
+                          final unitNames = CourseList.getUnitNamesForCourse(
+                              courseName: _selectedCourse);
+                          _selectedUnits = results
+                              .where((unit) => unitNames.contains(unit))
+                              .toList();
                         });
                       },
                     ),

@@ -9,7 +9,5 @@ String hashPassword(String password) {
   return digest.toString();
 }
 
-bool comparePasswords(String hashedPassword, String enteredPassword) {
-  print(hashPassword(enteredPassword));
-  return hashedPassword == hashPassword(enteredPassword);
-}
+bool comparePasswords(String hashedPassword, String enteredPassword) =>
+    hashedPassword == hashPassword(enteredPassword);

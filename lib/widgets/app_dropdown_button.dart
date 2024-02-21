@@ -15,6 +15,7 @@ class AppDropdownButton<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 10),
       decoration: BoxDecoration(
         border: Border.all(color: const Color.fromARGB(40, 0, 0, 0)),
