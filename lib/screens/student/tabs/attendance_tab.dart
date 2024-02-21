@@ -31,18 +31,11 @@ class _AttendanceTabState extends State<AttendanceTab> {
 
   @override
   void initState() {
-    _initializeData();
-    super.initState();
-  }
-
-  Future<void> _initializeData() async {
-    _studentCourseName = await LocalStorage().getCourseName();
+    _studentCourseName = LocalStorage().getCourseName();
     _selectedCourseUnit = CourseList.getUnitsForYearAndCourse(
             year: _yearOfStudy, courseName: _studentCourseName!)
         .first;
-    if (mounted) {
-      setState(() {});
-    }
+    super.initState();
   }
 
   Future<void> _submitDetails(

@@ -1,9 +1,15 @@
 import 'package:bio_attendance/utilities/enums/app_enums.dart';
+import 'package:hive/hive.dart';
 
+part 'auth_user.g.dart';
+
+@HiveType(typeId: 0)
 class AuthUser {
+  @HiveField(0)
   final String identifier;
-  final Role role;
 
+  @HiveField(1)
+  final Role role;
 
   AuthUser({
     required this.identifier,
