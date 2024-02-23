@@ -1,3 +1,4 @@
+import 'package:bio_attendance/models/attendance_track.dart';
 import 'package:bio_attendance/models/auth_user.dart';
 import 'package:bio_attendance/providers/database_provider.dart';
 import 'package:bio_attendance/router/app_router.dart';
@@ -31,10 +32,12 @@ void main() async {
   //* Register hive adapters
   Hive.registerAdapter<AuthUser>(AuthUserAdapter());
   Hive.registerAdapter<Role>(RoleAdapter());
+  Hive.registerAdapter(AttendanceTrackAdapter());
 
   //* Initialize hive boxes
   await Hive.openBox<AuthUser>('user');
   await Hive.openBox<String>('course');
+  await Hive.openBox<AttendanceTrack>('att_track');
 
   runApp(const App());
 }

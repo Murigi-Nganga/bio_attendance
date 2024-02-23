@@ -1,3 +1,4 @@
+import 'package:bio_attendance/models/attendance.dart';
 import 'package:bio_attendance/services/exceptions.dart';
 import 'package:bio_attendance/models/role.dart';
 import 'package:bio_attendance/utilities/helpers/password_hash.dart';
@@ -10,12 +11,14 @@ class DatabaseService {
   late CollectionReference _lecturersCollection;
   late CollectionReference _studentsCollection;
   late CollectionReference _attLocationsCollection;
+  late CollectionReference _attendancesCollection;
 
   DatabaseService() {
     _usersCollection = _db.collection('users');
     _lecturersCollection = _db.collection('lecturers');
     _studentsCollection = _db.collection('students');
     _attLocationsCollection = _db.collection('attendance_locations');
+    _attendancesCollection = _db.collection('attendances');
   }
 
   // Get AuthUser
@@ -117,8 +120,9 @@ class DatabaseService {
 
   Future<void> _deleteUser(String identifier) async {
     try {
-      QuerySnapshot querySnapshot =
-          await _usersCollection.where('identifier', isEqualTo: identifier).get();
+      QuerySnapshot querySnapshot = await _usersCollection
+          .where('identifier', isEqualTo: identifier)
+          .get();
 
       if (querySnapshot.docs.isNotEmpty) {
         await querySnapshot.docs.first.reference.delete();
@@ -179,7 +183,8 @@ class DatabaseService {
     }
   }
 
-  Future<void> updateClassLocation(String locationName, String polygonPoints) async {
+  Future<void> updateClassLocation(
+      String locationName, String polygonPoints) async {
     try {
       QuerySnapshot querySnapshot = await _attLocationsCollection
           .where('name', isEqualTo: locationName)
@@ -195,4 +200,7 @@ class DatabaseService {
       rethrow;
     }
   }
+
+  Future<void> addAttendance(Attendance attendance) async =>
+      await _attendancesCollection.add(attendance.toJSON());
 }

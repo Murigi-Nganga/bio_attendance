@@ -23,7 +23,7 @@ class StudentDetailsScreen extends StatelessWidget {
       body: Column(children: [
         Image.asset('assets/images/student.png'),
         const SizedBox(height: SpaceSize.large),
-        Text('Full Name: ${student.fullName}'),
+        Text('Full Name: ${student.name}'),
         const SizedBox(height: SpaceSize.medium),
         Text('Registration Number: ${student.regNo}'),
         const SizedBox(height: SpaceSize.medium),

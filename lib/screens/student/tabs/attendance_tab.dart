@@ -1,5 +1,8 @@
 import 'package:bio_attendance/data/course_list.dart';
+import 'package:bio_attendance/models/attendance.dart';
 import 'package:bio_attendance/models/attendance_location.dart';
+import 'package:bio_attendance/models/attendance_track.dart';
+import 'package:bio_attendance/models/auth_user.dart';
 import 'package:bio_attendance/providers/database_provider.dart';
 import 'package:bio_attendance/services/exceptions.dart';
 import 'package:bio_attendance/services/local_storage.dart';
@@ -28,9 +31,11 @@ class _AttendanceTabState extends State<AttendanceTab> {
   bool? isAuthenticated;
   int _yearOfStudy = 1;
   late String _selectedCourseUnit;
+  late String _studentRegNo;
 
   @override
   void initState() {
+    _studentRegNo = LocalStorage().getUser()!.identifier;
     _studentCourseName = LocalStorage().getCourseName();
     _selectedCourseUnit = CourseList.getUnitsForYearAndCourse(
             year: _yearOfStudy, courseName: _studentCourseName!)
@@ -44,6 +49,34 @@ class _AttendanceTabState extends State<AttendanceTab> {
   ) async {
     bool isInAttLocation = false;
 
+    AttendanceTrack? attTrack =
+        LocalStorage().getAttendnaceTrack(attendanceDetails['course_unit']);
+
+    if (attTrack == null) {
+      await LocalStorage().addAttendanceTrack(AttendanceTrack(
+        courseUnit: attendanceDetails['course_unit'],
+        signInSuccessful: true,
+        timeSignedIn: attendanceDetails['time_signed_in'],
+      ));
+
+      if (!mounted) return;
+      await showSuccessDialog(context, 'Sign in recorded successfully');
+      databaseProvider.changeLoadingStatus(false);
+      return;
+    }
+
+    // Get minute difference from sign in to now
+    int minuteDifference =
+        DateTime.now().difference(attTrack.timeSignedIn).inMinutes;
+
+    if (minuteDifference < 10) {
+      await showErrorDialog(
+          context,
+          'Sign out cannot be recorded now \n'
+          'Wait for ${10 - minuteDifference} more minutes to elapse');
+      return;
+    }
+
     try {
       String courseLocation =
           CourseList.getLocationsForCourseUnits([_selectedCourseUnit]).first;
@@ -55,7 +88,7 @@ class _AttendanceTabState extends State<AttendanceTab> {
 
       if (attLocation.polygonPoints == null) {
         if (!mounted) return;
-        showErrorDialog(
+        await showErrorDialog(
             context,
             '$_selectedCourseUnit taught in location $courseLocation'
             'does not have a defined geofence');
@@ -75,14 +108,14 @@ class _AttendanceTabState extends State<AttendanceTab> {
       await showErrorDialog(context, LocationNotFoundException().toString());
       databaseProvider.changeLoadingStatus(false);
     } on GenericException {
-      showErrorDialog(context, GenericException().toString());
+      await showErrorDialog(context, GenericException().toString());
       databaseProvider.changeLoadingStatus(false);
     }
 
     if (!mounted) return;
     if (isInAttLocation == false) {
       databaseProvider.changeLoadingStatus(false);
-      showErrorDialog(
+      await showErrorDialog(
         context,
         'You are not in the correct location for the class',
       );
@@ -99,7 +132,7 @@ class _AttendanceTabState extends State<AttendanceTab> {
 
     if (canAuthenticateWithBiometrics == false) {
       if (!mounted) return;
-      showErrorDialog(context, 'Biometric authentication is unavailable');
+      await showErrorDialog(context, 'Biometric authentication is unavailable');
       databaseProvider.changeLoadingStatus(false);
       return;
     }
@@ -121,24 +154,35 @@ class _AttendanceTabState extends State<AttendanceTab> {
           setState(() {
             isAuthenticated = true;
           });
-          showSuccessDialog(
-              context,
-              '** Experimental ** \n\n'
-              'Authentication successful \n\n'
-              'Attendance details to be recorded \n\n'
-              '$attendanceDetails');
+
+          try {
+            await databaseProvider.addAttendance(Attendance(
+              studentRegNo: _studentRegNo,
+              yearOfStudy: attendanceDetails['year_of_study'],
+              timeSignedIn: DateTime.now(),
+              course: attendanceDetails['course'],
+              courseUnit: attendanceDetails['course_unit'],
+            ));
+
+            if (!mounted) return;
+            await showSuccessDialog(
+                context, 'Complete attendance recorded successfully');
+          } catch (_) {
+            if (!mounted) return;
+            await showErrorDialog(context, GenericException().toString());
+          }
         } else {
           setState(() {
             isAuthenticated = false;
           });
-          showErrorDialog(context, 'Authentication failed');
+          await showErrorDialog(context, 'Authentication failed');
         }
       } catch (e) {
         if (!mounted) return;
         setState(() {
           isAuthenticated = null;
         });
-        showErrorDialog(context, 'Could not do authentication');
+        await showErrorDialog(context, 'Could not do authentication');
       }
     } //TODO: Add an else block if features not "activated"
 
@@ -218,7 +262,7 @@ class _AttendanceTabState extends State<AttendanceTab> {
                       'course': _studentCourseName,
                       'year_of_study': _yearOfStudy,
                       'course_unit': _selectedCourseUnit,
-                      'time_signed': DateTime.now(),
+                      'time_signed_in': DateTime.now(),
                     }, databaseProvider),
                     child: const Row(
                       mainAxisAlignment: MainAxisAlignment.center,

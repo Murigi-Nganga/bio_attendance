@@ -1,3 +1,4 @@
+import 'package:bio_attendance/models/attendance.dart';
 import 'package:bio_attendance/models/attendance_location.dart';
 import 'package:bio_attendance/models/auth_user.dart';
 import 'package:bio_attendance/models/lecturer.dart';
@@ -195,4 +196,19 @@ class DatabaseProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  Future<void> addAttendance(Attendance attendance) async {
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      await _databaseService.addAttendance(attendance);
+    } catch (_) {
+      throw GenericException();
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
 }
