@@ -9,11 +9,9 @@ import 'package:provider/provider.dart';
 class ClassLocationCard extends StatelessWidget {
   const ClassLocationCard({
     Key? key,
-    required this.courseUnitName,
     required this.attLocationName,
   }) : super(key: key);
 
-  final String courseUnitName;
   final String attLocationName;
 
   @override
@@ -54,10 +52,6 @@ class ClassLocationCard extends StatelessWidget {
             }
           },
           title: Text(
-            courseUnitName,
-            style: const TextStyle(color: Colors.white),
-          ),
-          subtitle: Text(
             attLocationName,
             style: const TextStyle(color: Colors.white),
           ),
