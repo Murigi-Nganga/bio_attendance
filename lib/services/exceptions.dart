@@ -59,7 +59,7 @@ class CourseNotFoundException implements Exception {
   }
 }
 
-class ManyFacesException implements Exception {
+class ManyOrNoFacesException implements Exception {
   @override
   String toString() {
     return 'Image should contain a single face';

@@ -1,6 +1,4 @@
-import 'package:bio_attendance/providers/student_image_provider.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 class ImagePreviewScreen extends StatelessWidget {
   const ImagePreviewScreen({super.key});
@@ -11,101 +9,102 @@ class ImagePreviewScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Image Preview'),
       ),
-      body: SingleChildScrollView(
+      body: const SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.only(top: 40.0),
+          padding: EdgeInsets.only(top: 40.0),
           child: Center(
-            child: Consumer<StudentImageProvider>(
-              builder: (_, imgProvider, __) {
-                if (imgProvider.isLoading) {
-                  return const CircularProgressIndicator();
-                } else {
-                  return Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      CircleAvatar(
-                        backgroundColor:
-                            Theme.of(context).colorScheme.secondary,
-                        backgroundImage: imgProvider.studImage == null
-                            ? null
-                            : FileImage(imgProvider.studImage!),
-                        radius: 120,
-                        child: imgProvider.studImage == null
-                            ? const Icon(
-                                Icons.person,
-                                size: 70,
-                                color: Colors.white,
-                              )
-                            : null,
-                      ),
-                      const SizedBox(height: 40),
-                      imgProvider.isLoading
-                          ? const CircularProgressIndicator()
-                          : Column(
-                              children: [
-                                imgProvider.studImage == null
-                                    ? const SizedBox()
-                                    : const Text('Not loading state'),
-                                    // SizedBox(
-                                    //     width: context.size!.width * .9,
-                                    //     child: 
-                                    //     CustomFormField(
+            child: Placeholder(),
+            // Consumer<StudentImageProvider>(
+            //   builder: (_, imgProvider, __) {
+            //     if (imgProvider.isLoading) {
+            //       return const CircularProgressIndicator();
+            //     } else {
+            //       return Column(
+            //         mainAxisAlignment: MainAxisAlignment.center,
+            //         children: [
+            //           CircleAvatar(
+            //             backgroundColor:
+            //                 Theme.of(context).colorScheme.secondary,
+            //             backgroundImage: imgProvider.studImage == null
+            //                 ? null
+            //                 : FileImage(imgProvider.studImage!),
+            //             radius: 120,
+            //             child: imgProvider.studImage == null
+            //                 ? const Icon(
+            //                     Icons.person,
+            //                     size: 70,
+            //                     color: Colors.white,
+            //                   )
+            //                 : null,
+            //           ),
+            //           const SizedBox(height: 40),
+            //           imgProvider.isLoading
+            //               ? const CircularProgressIndicator()
+            //               : Column(
+            //                   children: [
+            //                     imgProvider.studImage == null
+            //                         ? const SizedBox()
+            //                         : const Text('Not loading state'),
+            //                         // SizedBox(
+            //                         //     width: context.size!.width * .9,
+            //                         //     child: 
+            //                         //     CustomFormField(
 
                                           
-                                    //       initialValue: imgController.studRegNo,
-                                    //       keyboardType: TextInputType.text,
-                                    //       labelText: 'Student Reg No',
-                                    //       prefixIconData:
-                                    //           Icons.app_registration_rounded,
-                                    //       onChanged: imgController.studRegNo,
-                                    //       validator: (value) =>
-                                    //           validateRegNumber(
-                                    //               value, 'Registration Number'), 
+            //                         //       initialValue: imgController.studRegNo,
+            //                         //       keyboardType: TextInputType.text,
+            //                         //       labelText: 'Student Reg No',
+            //                         //       prefixIconData:
+            //                         //           Icons.app_registration_rounded,
+            //                         //       onChanged: imgController.studRegNo,
+            //                         //       validator: (value) =>
+            //                         //           validateRegNumber(
+            //                         //               value, 'Registration Number'), 
                                                   
-                                    //       controller: null, 
-                                    //       prefixIcon: null,
-                                    //     ),
-                                    //   ),
-                                const SizedBox(height: 20),
-                                imgProvider.studImage == null
-                                    ? const SizedBox()
-                                    : SizedBox(
-                                        width: context.size!.width * .7,
-                                        child: ElevatedButton(
-                                          onPressed: () async =>
-                                              await imgProvider.submitImage(),
-                                          style: ButtonStyle(
-                                            backgroundColor:
-                                                MaterialStateProperty.all(
-                                                    Colors.blueGrey[700]),
-                                          ),
-                                          child: const Text('Submit Image'),
-                                        ),
-                                      ),
-                                const SizedBox(height: 20),
-                                SizedBox(
-                                  width: context.size!.width * .7,
-                                  child: ElevatedButton(
-                                    onPressed: () async => await imgProvider.takePicture(context),
-                                    child: const Text('Take picture'),
-                                  ),
-                                ),
-                                const SizedBox(height: 20),
-                                SizedBox(
-                                  width: context.size!.width * .7,
-                                  child: ElevatedButton(
-                                    onPressed: () async =>
-                                        await imgProvider.getImageFromGallery(),
-                                    child: const Text('Upload photo'),
-                                  ),
-                                ),
-                              ],
-                            ),
-                    ],
-                  );
-                }
-              },
-            ),
+            //                         //       controller: null, 
+            //                         //       prefixIcon: null,
+            //                         //     ),
+            //                         //   ),
+            //                     const SizedBox(height: 20),
+            //                     imgProvider.studImage == null
+            //                         ? const SizedBox()
+            //                         : SizedBox(
+            //                             width: context.size!.width * .7,
+            //                             child: ElevatedButton(
+            //                               onPressed: () async =>
+            //                                   await imgProvider.submitImage(),
+            //                               style: ButtonStyle(
+            //                                 backgroundColor:
+            //                                     MaterialStateProperty.all(
+            //                                         Colors.blueGrey[700]),
+            //                               ),
+            //                               child: const Text('Submit Image'),
+            //                             ),
+            //                           ),
+            //                     const SizedBox(height: 20),
+            //                     SizedBox(
+            //                       width: context.size!.width * .7,
+            //                       child: ElevatedButton(
+            //                         onPressed: () async => await imgProvider.takePicture(context),
+            //                         child: const Text('Take picture'),
+            //                       ),
+            //                     ),
+            //                     const SizedBox(height: 20),
+            //                     SizedBox(
+            //                       width: context.size!.width * .7,
+            //                       child: ElevatedButton(
+            //                         onPressed: () async =>
+            //                             await imgProvider.getImageFromGallery(),
+            //                         child: const Text('Upload photo'),
+            //                       ),
+            //                     ),
+            //                   ],
+            //                 ),
+            //         ],
+            //       );
+            //     }
+            //   },
+            // ),
           ),
         ),
       ),

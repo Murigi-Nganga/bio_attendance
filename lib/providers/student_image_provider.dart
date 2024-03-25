@@ -32,7 +32,7 @@ class StudentImageProvider extends ChangeNotifier {
 
     if (faces.length != 1) {
       //TODO: handle this exception on the UI
-      throw ManyFacesException();
+      throw ManyOrNoFacesException();
     } else {
       final Uint8List bytes = await imageFile.readAsBytes();
       final Completer<ui.Image> completer = Completer();
@@ -73,9 +73,24 @@ class StudentImageProvider extends ChangeNotifier {
       XFile? pickedXFile =
           await ImagePicker().pickImage(source: ImageSource.gallery);
       _detectFace(File(pickedXFile!.path));
+    } on ManyOrNoFacesException {
+      isLoading = false;
+      notifyListeners();
+      rethrow;
+    } on IncorrectHeadPositionException {
+      isLoading = false;
+      notifyListeners();
+      rethrow;
+    } on DimEnvironmentException {
+      isLoading = false;
+      notifyListeners();
+      rethrow;
     } catch (error) {
+      isLoading = false;
+      notifyListeners();
       throw NoImageSelectedException();
     }
+
     isLoading = false;
     notifyListeners();
   }
@@ -86,11 +101,28 @@ class StudentImageProvider extends ChangeNotifier {
 
     try {
       final File imageFile =
-          (await Navigator.of(context).pushNamed(AppRouter.takePictureRoute))!;
+          (await Navigator.of(context).pushNamed<File?>(AppRouter.takePictureRoute))!;
       _detectFace(imageFile);
+      if (!context.mounted) return;
+    } on ManyOrNoFacesException {
+      isLoading = false;
+      notifyListeners();
+      rethrow;
+    } on IncorrectHeadPositionException {
+      isLoading = false;
+      notifyListeners();
+      rethrow;
+    } on DimEnvironmentException {
+      isLoading = false;
+      notifyListeners();
+      rethrow;
     } catch (error) {
+      print(error);
+      isLoading = false;
+      notifyListeners();
       throw NoPhotoCapturedException();
     }
+
     isLoading = false;
     notifyListeners();
   }
@@ -107,7 +139,7 @@ class StudentImageProvider extends ChangeNotifier {
         Uri.parse(endpoints["upload-image"]!),
       );
 
-      //TODO: Send the image to the backend 
+      //TODO: Send the image to the backend
 
       var stream = http.ByteStream(studImage!.openRead());
       var length = await studImage!.length();

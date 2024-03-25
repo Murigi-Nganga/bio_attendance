@@ -111,7 +111,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                       'role': widget.role,
                                       'password': password,
                                     });
-                                    if (!mounted) return;
+                                    if (!context.mounted) return;
                                   } on UserNotFoundException {
                                     await showErrorDialog(
                                       context,
@@ -144,7 +144,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                     return;
                                   }
 
-                                  if (!mounted) return;
+                                  if (!context.mounted) return;
                                   showSuccessDialog(
                                       context, 'Login Successful');
                                   Navigator.of(context).pushNamedAndRemoveUntil(

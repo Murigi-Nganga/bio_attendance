@@ -1,4 +1,5 @@
 import 'package:bio_attendance/providers/database_provider.dart';
+import 'package:bio_attendance/providers/student_image_provider.dart';
 import 'package:bio_attendance/services/exceptions.dart';
 import 'package:bio_attendance/utilities/dialogs/error_dialog.dart';
 import 'package:bio_attendance/utilities/dialogs/success_dialog.dart';
@@ -74,14 +75,187 @@ class _RegisterViewState extends State<AddStudentScreen> {
           padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
-              Image.asset(
-                'assets/images/add_user.png',
-                height: 250.0,
-              ),
+              // Image.asset(
+              //   'assets/images/add_user.png',
+              //   height: 250.0,
+              // ),
               Form(
                 key: _formKey,
                 child: Column(
                   children: [
+                    Consumer<StudentImageProvider>(
+                      builder: (_, imgProvider, __) {
+                        if (imgProvider.isLoading) {
+                          return const CircularProgressIndicator();
+                        } else {
+                          return Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              CircleAvatar(
+                                backgroundColor:
+                                    Theme.of(context).colorScheme.secondary,
+                                backgroundImage: imgProvider.studImage == null
+                                    ? null
+                                    : FileImage(imgProvider.studImage!),
+                                radius: 100,
+                                child: imgProvider.studImage == null
+                                    ? const Icon(
+                                        Icons.person,
+                                        size: 70,
+                                        color: Colors.white,
+                                      )
+                                    : null,
+                              ),
+                              const SizedBox(height: SpaceSize.small * .5),
+                              imgProvider.isLoading
+                                  ? const CircularProgressIndicator()
+                                  : Column(
+                                      children: [
+                                        // imgProvider.studImage == null
+                                        //     ? const SizedBox(child: Text("When the image is null"))
+                                        //     : const Text('Not null image'),
+                                        // SizedBox(
+                                        //     width: context.size!.width * .9,
+                                        //     child:
+                                        //     CustomFormField(
+
+                                        //       initialValue: imgController.studRegNo,
+                                        //       keyboardType: TextInputType.text,
+                                        //       labelText: 'Student Reg No',
+                                        //       prefixIconData:
+                                        //           Icons.app_registration_rounded,
+                                        //       onChanged: imgController.studRegNo,
+                                        //       validator: (value) =>
+                                        //           validateRegNumber(
+                                        //               value, 'Registration Number'),
+
+                                        //       controller: null,
+                                        //       prefixIcon: null,
+                                        //     ),
+                                        //   ),
+                                        const SizedBox(
+                                            height: SpaceSize.medium),
+                                        imgProvider.studImage == null
+                                            ? const SizedBox()
+                                            : SizedBox(
+                                                width: context.size!.width * .7,
+                                                child: ElevatedButton(
+                                                  onPressed: () async =>
+                                                      await imgProvider
+                                                          .submitImage(),
+                                                  style: ButtonStyle(
+                                                    backgroundColor:
+                                                        MaterialStateProperty
+                                                            .all(Colors
+                                                                .blueGrey[700]),
+                                                  ),
+                                                  child: const Text(
+                                                      'Submit Image'),
+                                                ),
+                                              ),
+                                        const SizedBox(
+                                            height: SpaceSize.small * .5),
+                                        SizedBox(
+                                          width: MediaQuery.of(context)
+                                                  .size
+                                                  .width *
+                                              .7,
+                                          child: OutlinedButton(
+                                            onPressed: () async {
+                                              try {
+                                                await imgProvider
+                                                    .takePicture(context);
+                                                if (!context.mounted) return;
+                                              } on ManyOrNoFacesException {
+                                                await showErrorDialog(
+                                                    context,
+                                                    ManyOrNoFacesException()
+                                                        .toString());
+                                              } on IncorrectHeadPositionException {
+                                                await showErrorDialog(
+                                                    context,
+                                                    IncorrectHeadPositionException()
+                                                        .toString());
+                                              } on DimEnvironmentException {
+                                                await showErrorDialog(
+                                                    context,
+                                                    DimEnvironmentException()
+                                                        .toString());
+                                              } on NoPhotoCapturedException {
+                                                await showErrorDialog(
+                                                    context,
+                                                    NoPhotoCapturedException()
+                                                        .toString());
+                                              } catch (error) {
+                                                print(error);
+                                                await showErrorDialog(
+                                                    context,
+                                                    GenericException()
+                                                        .toString()
+                                                        .toString());
+                                              }
+                                            },
+                                            child: const Text('Take picture'),
+                                          ),
+                                        ),
+                                        const SizedBox(
+                                            height: SpaceSize.small * .5),
+                                        const Text("OR"),
+                                        const SizedBox(
+                                            height: SpaceSize.medium * .5),
+                                        SizedBox(
+                                          width: MediaQuery.of(context)
+                                                  .size
+                                                  .width *
+                                              .7,
+                                          child: OutlinedButton(
+                                            onPressed: () async {
+                                              try {
+                                                await imgProvider
+                                                    .getImageFromGallery();
+                                                if (!context.mounted) return;
+                                              } on NoImageSelectedException {
+                                                await showErrorDialog(
+                                                    context,
+                                                    NoImageSelectedException()
+                                                        .toString());
+                                              } on ManyOrNoFacesException {
+                                                await showErrorDialog(
+                                                    context,
+                                                    ManyOrNoFacesException()
+                                                        .toString());
+                                              } on IncorrectHeadPositionException {
+                                                await showErrorDialog(
+                                                    context,
+                                                    IncorrectHeadPositionException()
+                                                        .toString());
+                                              } on DimEnvironmentException {
+                                                await showErrorDialog(
+                                                    context,
+                                                    DimEnvironmentException()
+                                                        .toString());
+                                              }
+                                            },
+                                            child: const Text(
+                                                'Upload gallery photo'),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                            ],
+                          );
+                        }
+                      },
+                    ),
+                    const SizedBox(height: SpaceSize.small),
+                    Divider(
+                      thickness: 1.25,
+                      color: Theme.of(context)
+                          .colorScheme
+                          .primary
+                          .withOpacity(.25),
+                    ),
+                    const SizedBox(height: SpaceSize.small),
                     CustomFormField(
                       controller: _name,
                       labelText: 'Full Name',
@@ -129,10 +303,21 @@ class _RegisterViewState extends State<AddStudentScreen> {
                       },
                     ),
                     const SizedBox(height: SpaceSize.medium),
+                    const Align(
+                      alignment: Alignment.centerLeft,
+                      widthFactor: 3.2,
+                      child: Text(
+                        'Year of Study',
+                        style: TextStyle(fontSize: 16),
+                      ),
+                    ),
+                    const SizedBox(height: SpaceSize.small),
                     AppDropdownButton<int>(
                       items: List.generate(4, (index) => index + 1)
                           .map((number) => DropdownMenuItem(
-                              value: number, child: Text(number.toString())))
+                                value: number,
+                                child: Text(number.toString()),
+                              ))
                           .toList(),
                       value: _yearOfStudy,
                       onChanged: (newValue) {
@@ -169,13 +354,13 @@ class _RegisterViewState extends State<AddStudentScreen> {
                                   'password': password,
                                   'yearOfStudy': yearOfStudy
                                 });
-                                if (!mounted) return;
+                                if (!context.mounted) return;
                                 await showSuccessDialog(
                                   context,
                                   'Student added successfully',
                                 ).then((_) => _resetForm());
 
-                                if (!mounted) return;
+                                if (!context.mounted) return;
                               } on EmailAlreadyInUseException {
                                 showErrorDialog(
                                   context,

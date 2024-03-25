@@ -63,7 +63,7 @@ class _StudentsTabState extends State<StudentsTab> {
                             Student student =
                                 await databaseProvider.getStudent(_regNo.text);
 
-                            if (!mounted) return;
+                            if (!context.mounted) return;
                             Navigator.of(context).pushNamed(
                               AppRouter.studentDetailsRoute,
                               arguments: {'student': student},
