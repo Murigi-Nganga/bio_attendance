@@ -51,3 +51,45 @@ class LocationNotFoundException implements Exception {
     return 'Location with that name does not exist';
   }
 }
+
+class CourseNotFoundException implements Exception {
+  @override
+  String toString() {
+    return 'Course with that name does not exist';
+  }
+}
+
+class ManyFacesException implements Exception {
+  @override
+  String toString() {
+    return 'Image should contain a single face';
+  }
+}
+
+class DimEnvironmentException implements Exception {
+  @override
+  String toString() {
+    return 'Please move to a location with more light';
+  }
+}
+
+class IncorrectHeadPositionException implements Exception {
+  @override
+  String toString() {
+    return 'Incorrect head position';
+  }
+}
+
+class NoImageSelectedException implements Exception {
+  @override
+  String toString() {
+    return 'No image selected from the gallery';
+  }
+}
+
+class NoPhotoCapturedException implements Exception {
+  @override
+  String toString() {
+    return 'No photo captured with your camera';
+  }
+}

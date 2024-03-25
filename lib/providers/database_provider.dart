@@ -1,3 +1,4 @@
+import 'package:bio_attendance/data/course_list.dart';
 import 'package:bio_attendance/models/attendance.dart';
 import 'package:bio_attendance/models/attendance_location.dart';
 import 'package:bio_attendance/models/auth_user.dart';
@@ -211,4 +212,27 @@ class DatabaseProvider extends ChangeNotifier {
     }
   }
 
+  Future<int> getNumberOfStudents(String courseUnitName) async {
+    _isLoading = true;
+    notifyListeners();
+
+    int numberOfStudents = 0;
+    Map<String, dynamic> details;
+
+    try {
+      details = CourseList.getCourseNameAndYearOfStudy(courseUnitName);
+      await _databaseService.getNumberOfStudents(
+        details['course_name'],
+        details['year_of_study'],
+      );
+    } on CourseNotFoundException {
+      rethrow;
+    } catch (_) {
+      throw GenericException();
+    } finally {
+      _isLoading = false;
+    }
+
+    return numberOfStudents;
+  }
 }

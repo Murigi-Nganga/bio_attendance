@@ -31,6 +31,7 @@ class _RegisterViewState extends State<AddStudentScreen> {
   ];
 
   late String _selectedCourse;
+  late int _yearOfStudy;
 
   @override
   void initState() {
@@ -39,6 +40,7 @@ class _RegisterViewState extends State<AddStudentScreen> {
     _name = TextEditingController();
     _password = TextEditingController();
     _selectedCourse = _courseValues[0];
+    _yearOfStudy = 1;
     super.initState();
   }
 
@@ -127,6 +129,19 @@ class _RegisterViewState extends State<AddStudentScreen> {
                       },
                     ),
                     const SizedBox(height: SpaceSize.medium),
+                    AppDropdownButton<int>(
+                      items: List.generate(4, (index) => index + 1)
+                          .map((number) => DropdownMenuItem(
+                              value: number, child: Text(number.toString())))
+                          .toList(),
+                      value: _yearOfStudy,
+                      onChanged: (newValue) {
+                        setState(() {
+                          _yearOfStudy = newValue!;
+                        });
+                      },
+                    ),
+                    const SizedBox(height: SpaceSize.medium),
                     Consumer<DatabaseProvider>(
                         builder: (_, databaseProvider, __) {
                       if (databaseProvider.isLoading) {
@@ -143,6 +158,7 @@ class _RegisterViewState extends State<AddStudentScreen> {
                               final regNo = _regNo.text;
                               final password = _password.text;
                               final course = _selectedCourse;
+                              final yearOfStudy = _yearOfStudy;
 
                               try {
                                 await databaseProvider.addStudent({
@@ -150,7 +166,8 @@ class _RegisterViewState extends State<AddStudentScreen> {
                                   'email': email,
                                   'reg_no': regNo,
                                   'course': course,
-                                  'password': password
+                                  'password': password,
+                                  'yearOfStudy': yearOfStudy
                                 });
                                 if (!mounted) return;
                                 await showSuccessDialog(

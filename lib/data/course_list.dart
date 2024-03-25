@@ -1,5 +1,6 @@
 import 'package:bio_attendance/models/course.dart';
 import 'package:bio_attendance/models/course_unit.dart';
+import 'package:bio_attendance/services/exceptions.dart';
 
 class CourseList {
   static const List<Course> courseList = [
@@ -164,5 +165,20 @@ class CourseList {
         courseList.firstWhere((course) => course.name == courseName);
     return selectedCourse.units.map((unit) => unit.name).toList();
   }
-  
+
+  static Map<String, dynamic> getCourseNameAndYearOfStudy(
+      String courseUnitName) {
+    for (Course course in courseList) {
+      for (CourseUnit courseUnit in course.units) {
+        if (courseUnit.name == courseUnitName) {
+          return {
+            'course_name': course.name,
+            'year_of_study': courseUnit.yearStudied
+          };
+        }
+      }
+    }
+
+    throw CourseNotFoundException();
+  }
 }

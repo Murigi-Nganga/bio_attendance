@@ -86,6 +86,7 @@ class DatabaseService {
         'email': studentData['email'],
         'reg_no': studentData['reg_no'],
         'course': studentData['course'],
+        'year_of_study': studentData['year_of_study']
       });
     } on EmailAlreadyInUseException {
       rethrow;
@@ -203,4 +204,14 @@ class DatabaseService {
 
   Future<void> addAttendance(Attendance attendance) async =>
       await _attendancesCollection.add(attendance.toJSON());
+
+  // Get the number of students
+  Future<int> getNumberOfStudents(String courseName, int yearOfStudy) async {
+    QuerySnapshot querySnapshot = await _studentsCollection
+        .where('course_name', isEqualTo: courseName)
+        .where('year_of_study', isEqualTo: yearOfStudy)
+        .get();
+
+    return querySnapshot.size;
+  }
 }

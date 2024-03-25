@@ -2,7 +2,6 @@ import 'package:bio_attendance/data/course_list.dart';
 import 'package:bio_attendance/models/attendance.dart';
 import 'package:bio_attendance/models/attendance_location.dart';
 import 'package:bio_attendance/models/attendance_track.dart';
-import 'package:bio_attendance/models/auth_user.dart';
 import 'package:bio_attendance/providers/database_provider.dart';
 import 'package:bio_attendance/services/exceptions.dart';
 import 'package:bio_attendance/services/local_storage.dart';

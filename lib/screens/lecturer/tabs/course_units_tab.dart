@@ -21,11 +21,11 @@ class _CourseUnitsTabState extends State<CourseUnitsTab> {
   @override
   void initState() {
     databaseProvider = Provider.of<DatabaseProvider>(context, listen: false);
-    _fetchLecturerUnits();
+    _fetchLecturer();
     super.initState();
   }
 
-  _fetchLecturerUnits() async {
+  _fetchLecturer() async {
     lecturerEmail = LocalStorage().getUser()!.identifier;
     lecturer = await databaseProvider.getLecturer(lecturerEmail);
     if (mounted) {
@@ -44,13 +44,14 @@ class _CourseUnitsTabState extends State<CourseUnitsTab> {
       return const Center(child: CircularProgressIndicator());
     }
     return ListView.builder(
-        shrinkWrap: true,
-        itemCount: courseUnitNames.length,
-        itemBuilder: (context, index) {
-          return CourseUnitCard(
-            courseUnitName: courseUnitNames[index], 
-            attLocationName: courseUnitLocations[index],
-          );
-        });
+      shrinkWrap: true,
+      itemCount: courseUnitNames.length,
+      itemBuilder: (context, index) {
+        return CourseUnitCard(
+          courseUnitName: courseUnitNames[index],
+          attLocationName: courseUnitLocations[index],
+        );
+      },
+    );
   }
 }

@@ -1,6 +1,7 @@
 import 'package:bio_attendance/models/attendance_track.dart';
 import 'package:bio_attendance/models/auth_user.dart';
 import 'package:bio_attendance/providers/database_provider.dart';
+import 'package:bio_attendance/providers/student_image_provider.dart';
 import 'package:bio_attendance/router/app_router.dart';
 import 'package:bio_attendance/screens/admin/admin_home_screen.dart';
 import 'package:bio_attendance/screens/lecturer/lecturer_home_screen.dart';
@@ -50,6 +51,7 @@ class App extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (context) => DatabaseProvider()),
+        ChangeNotifierProvider(create: (context) => StudentImageProvider()),
       ],
       child: MaterialApp(
         title: 'Biometric Attendance Application',

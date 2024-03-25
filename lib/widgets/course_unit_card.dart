@@ -1,5 +1,11 @@
 // import 'package:bio_attendance/providers/database_provider.dart';
+import 'package:bio_attendance/models/attendance_location.dart';
+import 'package:bio_attendance/providers/database_provider.dart';
+import 'package:bio_attendance/router/app_router.dart';
+import 'package:bio_attendance/services/exceptions.dart';
+import 'package:bio_attendance/utilities/dialogs/error_dialog.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 // import 'package:provider/provider.dart';
 
 class CourseUnitCard extends StatelessWidget {
@@ -29,27 +35,25 @@ class CourseUnitCard extends StatelessWidget {
           width: 2,
         ),
       ),
-      child: 
-      // Consumer<DatabaseProvider>(builder: (_, databaseProvider, __) {
-        // if (databaseProvider.isLoading) {
-        //   return const SizedBox(height: 60, child: LinearProgressIndicator());
-        // }
-        // return 
-        ListTile(
+      child: Consumer<DatabaseProvider>(builder: (_, databaseProvider, __) {
+        if (databaseProvider.isLoading) {
+          return const SizedBox(height: 60, child: LinearProgressIndicator());
+        }
+        return ListTile(
           onTap: () async {
-            // try {
-            //   AttendanceLocation classLocation =
-            //       await databaseProvider.getClassLocation(attLocationName);
-            //   if (!context.mounted) return;
-            //   Navigator.of(context).pushNamed(
-            //     AppRouter.locationGeofenceRoute,
-            //     arguments: {'attLocation': classLocation},
-            //   );
-            // } on LocationNotFoundException {
-            //   showErrorDialog(context, LocationNotFoundException().toString());
-            // } on GenericException {
-            //   showErrorDialog(context, GenericException().toString());
-            // }
+            try {
+              AttendanceLocation classLocation =
+                  await databaseProvider.getClassLocation(attLocationName);
+              if (!context.mounted) return;
+              Navigator.of(context).pushNamed(
+                AppRouter.locationGeofenceRoute,
+                arguments: {'attLocation': classLocation},
+              );
+            } on LocationNotFoundException {
+              showErrorDialog(context, LocationNotFoundException().toString());
+            } on GenericException {
+              showErrorDialog(context, GenericException().toString());
+            }
           },
           title: Text(
             courseUnitName,
@@ -64,8 +68,8 @@ class CourseUnitCard extends StatelessWidget {
             color: Colors.white,
             size: 20,
           ),
-        ) //* Restore semicolon here
-      // }),
+        );
+      }),
     );
   }
 }
