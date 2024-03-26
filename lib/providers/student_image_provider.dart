@@ -13,20 +13,17 @@ class StudentImageProvider extends ChangeNotifier {
   bool isLoading = false;
 
   File? studImage;
-  String studRegNo = '';
 
   void resetStudImage() {
     studImage = null;
     notifyListeners();
   }
 
-  void _detectFace(File imageFile) async {
+  Future<void> _detectFace(File imageFile) async {
     final faces = await faceDetector.processImage(
       InputImage.fromFile(imageFile),
     );
-
     if (faces.length != 1) {
-      //TODO: handle this exception on the UI
       throw ManyOrNoFacesException();
     } else {
       final Uint8List bytes = await imageFile.readAsBytes();
@@ -67,7 +64,7 @@ class StudentImageProvider extends ChangeNotifier {
     try {
       XFile? pickedXFile =
           await ImagePicker().pickImage(source: ImageSource.gallery);
-      _detectFace(File(pickedXFile!.path));
+      await _detectFace(File(pickedXFile!.path));
     } on ManyOrNoFacesException {
       isLoading = false;
       notifyListeners();
@@ -97,7 +94,7 @@ class StudentImageProvider extends ChangeNotifier {
     try {
       final File imageFile = (await Navigator.of(context)
           .pushNamed(AppRouter.takePictureRoute))! as File;
-      _detectFace(imageFile);
+      await _detectFace(imageFile);
       if (!context.mounted) return;
     } on ManyOrNoFacesException {
       isLoading = false;
@@ -112,7 +109,6 @@ class StudentImageProvider extends ChangeNotifier {
       notifyListeners();
       rethrow;
     } catch (error) {
-      print(error);
       isLoading = false;
       notifyListeners();
       throw NoPhotoCapturedException();

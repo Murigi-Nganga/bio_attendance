@@ -75,10 +75,6 @@ class _RegisterViewState extends State<AddStudentScreen> {
           padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
-              // Image.asset(
-              //   'assets/images/add_user.png',
-              //   height: 250.0,
-              // ),
               Form(
                 key: _formKey,
                 child: Column(
@@ -111,48 +107,8 @@ class _RegisterViewState extends State<AddStudentScreen> {
                                   ? const CircularProgressIndicator()
                                   : Column(
                                       children: [
-                                        // imgProvider.studImage == null
-                                        //     ? const SizedBox(child: Text("When the image is null"))
-                                        //     : const Text('Not null image'),
-                                        // SizedBox(
-                                        //     width: context.size!.width * .9,
-                                        //     child:
-                                        //     CustomFormField(
-
-                                        //       initialValue: imgController.studRegNo,
-                                        //       keyboardType: TextInputType.text,
-                                        //       labelText: 'Student Reg No',
-                                        //       prefixIconData:
-                                        //           Icons.app_registration_rounded,
-                                        //       onChanged: imgController.studRegNo,
-                                        //       validator: (value) =>
-                                        //           validateRegNumber(
-                                        //               value, 'Registration Number'),
-
-                                        //       controller: null,
-                                        //       prefixIcon: null,
-                                        //     ),
-                                        //   ),
                                         const SizedBox(
                                             height: SpaceSize.medium),
-                                        // imgProvider.studImage == null
-                                        //     ? const SizedBox()
-                                        //     : SizedBox(
-                                        //         width: context.size!.width * .7,
-                                        //         child: ElevatedButton(
-                                        //           onPressed: () async =>
-                                        //               await imgProvider
-                                        //                   .submitImage(),
-                                        //           style: ButtonStyle(
-                                        //             backgroundColor:
-                                        //                 MaterialStateProperty
-                                        //                     .all(Colors
-                                        //                         .blueGrey[700]),
-                                        //           ),
-                                        //           child: const Text(
-                                        //               'Submit Image'),
-                                        //         ),
-                                        //       ),
                                         const SizedBox(
                                             height: SpaceSize.small * .5),
                                         SizedBox(
@@ -191,7 +147,6 @@ class _RegisterViewState extends State<AddStudentScreen> {
                                                 await showErrorDialog(
                                                     context,
                                                     GenericException()
-                                                        .toString()
                                                         .toString());
                                               }
                                             },
@@ -373,7 +328,6 @@ class _RegisterViewState extends State<AddStudentScreen> {
                                       _resetForm();
                                       imgProvider.resetStudImage();
                                     });
-
                                   } on EmailAlreadyInUseException {
                                     if (!context.mounted) return;
                                     showErrorDialog(
