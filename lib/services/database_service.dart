@@ -1,12 +1,14 @@
 import 'package:bio_attendance/models/attendance.dart';
 import 'package:bio_attendance/services/exceptions.dart';
 import 'package:bio_attendance/models/role.dart';
+import 'package:bio_attendance/services/image_api_service.dart';
 import 'package:bio_attendance/utilities/helpers/password_hash.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class DatabaseService {
   final _db = FirebaseFirestore.instance;
 
+  late ImageAPIService _imageApiService;
   late CollectionReference _usersCollection;
   late CollectionReference _lecturersCollection;
   late CollectionReference _studentsCollection;
@@ -14,6 +16,7 @@ class DatabaseService {
   late CollectionReference _attendancesCollection;
 
   DatabaseService() {
+    _imageApiService = ImageAPIService();
     _usersCollection = _db.collection('users');
     _lecturersCollection = _db.collection('lecturers');
     _studentsCollection = _db.collection('students');
@@ -67,6 +70,13 @@ class DatabaseService {
         throw EmailAlreadyInUseException();
       }
     } on UserNotFoundException {
+      Map<String, dynamic> imgUploadResult =
+          await _imageApiService.uploadImage(studentData['student_image']);
+
+      if (imgUploadResult["success"] == false) {
+        throw ImageUploadErrorException();
+      }
+
       QuerySnapshot querySnapshot = await _studentsCollection
           .where('reg_no', isEqualTo: studentData['reg_no'])
           .get();
@@ -86,11 +96,14 @@ class DatabaseService {
         'email': studentData['email'],
         'reg_no': studentData['reg_no'],
         'course': studentData['course'],
-        'year_of_study': studentData['year_of_study']
+        'year_of_study': studentData['year_of_study'],
+        'facial_encodings': imgUploadResult["encodings"].toString(),
       });
     } on EmailAlreadyInUseException {
       rethrow;
     } on RegNoAlreadyInUseException {
+      rethrow;
+    } on ImageUploadErrorException {
       rethrow;
     }
   }

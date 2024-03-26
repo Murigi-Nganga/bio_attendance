@@ -135,24 +135,24 @@ class _RegisterViewState extends State<AddStudentScreen> {
                                         //   ),
                                         const SizedBox(
                                             height: SpaceSize.medium),
-                                        imgProvider.studImage == null
-                                            ? const SizedBox()
-                                            : SizedBox(
-                                                width: context.size!.width * .7,
-                                                child: ElevatedButton(
-                                                  onPressed: () async =>
-                                                      await imgProvider
-                                                          .submitImage(),
-                                                  style: ButtonStyle(
-                                                    backgroundColor:
-                                                        MaterialStateProperty
-                                                            .all(Colors
-                                                                .blueGrey[700]),
-                                                  ),
-                                                  child: const Text(
-                                                      'Submit Image'),
-                                                ),
-                                              ),
+                                        // imgProvider.studImage == null
+                                        //     ? const SizedBox()
+                                        //     : SizedBox(
+                                        //         width: context.size!.width * .7,
+                                        //         child: ElevatedButton(
+                                        //           onPressed: () async =>
+                                        //               await imgProvider
+                                        //                   .submitImage(),
+                                        //           style: ButtonStyle(
+                                        //             backgroundColor:
+                                        //                 MaterialStateProperty
+                                        //                     .all(Colors
+                                        //                         .blueGrey[700]),
+                                        //           ),
+                                        //           child: const Text(
+                                        //               'Submit Image'),
+                                        //         ),
+                                        //       ),
                                         const SizedBox(
                                             height: SpaceSize.small * .5),
                                         SizedBox(
@@ -327,62 +327,80 @@ class _RegisterViewState extends State<AddStudentScreen> {
                       },
                     ),
                     const SizedBox(height: SpaceSize.medium),
-                    Consumer<DatabaseProvider>(
-                        builder: (_, databaseProvider, __) {
-                      if (databaseProvider.isLoading) {
-                        return const CircularProgressIndicator();
-                      } else {
-                        return SizedBox(
-                          width: MediaQuery.of(context).size.width * .75,
-                          child: ElevatedButton(
-                            onPressed: () async {
-                              if (!_formKey.currentState!.validate()) return;
+                    Consumer<StudentImageProvider>(
+                      builder: (_, imgProvider, __) {
+                        return Consumer<DatabaseProvider>(
+                            builder: (_, databaseProvider, __) {
+                          if (databaseProvider.isLoading) {
+                            return const CircularProgressIndicator();
+                          } else {
+                            return SizedBox(
+                              width: MediaQuery.of(context).size.width * .75,
+                              child: ElevatedButton(
+                                onPressed: () async {
+                                  if (imgProvider.studImage == null) {
+                                    await showErrorDialog(
+                                        context, 'Please add a student image!');
+                                  }
 
-                              final email = _email.text;
-                              final name = _name.text;
-                              final regNo = _regNo.text;
-                              final password = _password.text;
-                              final course = _selectedCourse;
-                              final yearOfStudy = _yearOfStudy;
+                                  if (!_formKey.currentState!.validate()) {
+                                    return;
+                                  }
 
-                              try {
-                                await databaseProvider.addStudent({
-                                  'name': name,
-                                  'email': email,
-                                  'reg_no': regNo,
-                                  'course': course,
-                                  'password': password,
-                                  'yearOfStudy': yearOfStudy
-                                });
-                                if (!context.mounted) return;
-                                await showSuccessDialog(
-                                  context,
-                                  'Student added successfully',
-                                ).then((_) => _resetForm());
+                                  final email = _email.text;
+                                  final name = _name.text;
+                                  final regNo = _regNo.text;
+                                  final password = _password.text;
+                                  final course = _selectedCourse;
+                                  final yearOfStudy = _yearOfStudy;
+                                  final studentImage = imgProvider.studImage;
 
-                                if (!context.mounted) return;
-                              } on EmailAlreadyInUseException {
-                                showErrorDialog(
-                                  context,
-                                  EmailAlreadyInUseException().toString(),
-                                );
-                              } on RegNoAlreadyInUseException {
-                                showErrorDialog(
-                                  context,
-                                  RegNoAlreadyInUseException().toString(),
-                                );
-                              } on GenericException {
-                                showErrorDialog(
-                                  context,
-                                  GenericException().toString(),
-                                );
-                              }
-                            },
-                            child: const Text("Register"),
-                          ),
-                        );
-                      }
-                    }),
+                                  try {
+                                    await databaseProvider.addStudent({
+                                      'name': name,
+                                      'email': email,
+                                      'reg_no': regNo,
+                                      'course': course,
+                                      'password': password,
+                                      'year_of_study': yearOfStudy,
+                                      'student_image': studentImage
+                                    });
+                                    if (!context.mounted) return;
+                                    await showSuccessDialog(
+                                      context,
+                                      'Student added successfully',
+                                    ).then((_) {
+                                      _resetForm();
+                                      imgProvider.resetStudImage();
+                                    });
+
+                                  } on EmailAlreadyInUseException {
+                                    if (!context.mounted) return;
+                                    showErrorDialog(
+                                      context,
+                                      EmailAlreadyInUseException().toString(),
+                                    );
+                                  } on RegNoAlreadyInUseException {
+                                    if (!context.mounted) return;
+                                    showErrorDialog(
+                                      context,
+                                      RegNoAlreadyInUseException().toString(),
+                                    );
+                                  } on GenericException {
+                                    if (!context.mounted) return;
+                                    showErrorDialog(
+                                      context,
+                                      GenericException().toString(),
+                                    );
+                                  }
+                                },
+                                child: const Text("Register"),
+                              ),
+                            );
+                          }
+                        });
+                      },
+                    ),
                   ],
                 ),
               ),

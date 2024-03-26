@@ -93,3 +93,10 @@ class NoPhotoCapturedException implements Exception {
     return 'No photo captured with your camera';
   }
 }
+
+class ImageUploadErrorException implements Exception {
+  @override
+  String toString() {
+    return 'Image could not be uploaded';
+  }
+}
