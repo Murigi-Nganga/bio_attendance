@@ -35,7 +35,7 @@ class StudentImageProvider extends ChangeNotifier {
       //* Brightness of the image
       double brightness = await calculateImageBrightness(imageForBrightness);
 
-      if (brightness < 40) {
+      if (brightness < 50) {
         throw DimEnvironmentException();
       }
 

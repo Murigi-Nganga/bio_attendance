@@ -150,6 +150,21 @@ class CourseList {
     return locations;
   }
 
+  static List<CourseUnit> getCourseUnitsFromNames(
+      List<String> courseUnitNames) {
+    List<CourseUnit> courseUnits = [];
+
+    for (Course course in courseList) {
+      for (CourseUnit unit in course.units) {
+        if (courseUnitNames.contains(unit.name)) {
+          courseUnits.add(unit);
+        }
+      }
+    }
+
+    return courseUnits;
+  }
+
   static List<CourseUnit> getUnitsForCourse({
     required String courseName,
   }) {
@@ -181,4 +196,5 @@ class CourseList {
 
     throw CourseNotFoundException();
   }
+
 }

@@ -63,7 +63,7 @@ class _LecturersTabState extends State<LecturersTab> {
                             Lecturer lecturer =
                                 await databaseProvider.getLecturer(_email.text);
 
-                            if (!mounted) return;
+                            if (!context.mounted) return;
                             Navigator.of(context).pushNamed(
                               AppRouter.lecturerDetailsRoute,
                               arguments: {'lecturer': lecturer},

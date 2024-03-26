@@ -4,7 +4,6 @@ import 'package:bio_attendance/utilities/dialogs/error_dialog.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 
-//TODO: Add screen to routes
 class TakePictureScreen extends StatefulWidget {
   const TakePictureScreen({
     super.key,

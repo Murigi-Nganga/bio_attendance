@@ -189,13 +189,13 @@ class _RegisterViewState extends State<AddLecturerScreen> {
                                   'course_units': _selectedUnits,
                                   'password': password
                                 });
-                                if (!mounted) return;
+                                if (!context.mounted) return;
                                 await showSuccessDialog(
                                   context,
                                   'Lecturer added successfully',
                                 ).then((_) => _resetForm());
 
-                                if (!mounted) return;
+                                if (!context.mounted) return;
                               } on EmailAlreadyInUseException {
                                 showErrorDialog(
                                   context,

@@ -15,7 +15,7 @@ class LecturerHomeScreen extends StatefulWidget {
 class _LecturerHomeScreenState extends State<LecturerHomeScreen> {
   void _handleLogout(BuildContext context) async {
     await LocalStorage().deleteUser();
-    if (!mounted) return;
+    if (!context.mounted) return;
     Navigator.of(context).pushNamedAndRemoveUntil(
       AppRouter.userSelectionRoute,
       (route) => false,

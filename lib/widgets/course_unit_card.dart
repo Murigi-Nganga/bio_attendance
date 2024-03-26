@@ -1,5 +1,4 @@
-// import 'package:bio_attendance/providers/database_provider.dart';
-import 'package:bio_attendance/models/attendance_location.dart';
+import 'package:bio_attendance/models/course_unit.dart';
 import 'package:bio_attendance/providers/database_provider.dart';
 import 'package:bio_attendance/router/app_router.dart';
 import 'package:bio_attendance/services/exceptions.dart';
@@ -9,14 +8,9 @@ import 'package:provider/provider.dart';
 // import 'package:provider/provider.dart';
 
 class CourseUnitCard extends StatelessWidget {
-  const CourseUnitCard({
-    Key? key,
-    required this.courseUnitName,
-    required this.attLocationName,
-  }) : super(key: key);
+  const CourseUnitCard({Key? key, required this.courseUnit}) : super(key: key);
 
-  final String courseUnitName;
-  final String attLocationName;
+  final CourseUnit courseUnit;
 
   @override
   Widget build(BuildContext context) {
@@ -40,27 +34,23 @@ class CourseUnitCard extends StatelessWidget {
           return const SizedBox(height: 60, child: LinearProgressIndicator());
         }
         return ListTile(
-          onTap: () async {
+          onTap: () {
             try {
-              AttendanceLocation classLocation =
-                  await databaseProvider.getClassLocation(attLocationName);
-              if (!context.mounted) return;
               Navigator.of(context).pushNamed(
-                AppRouter.locationGeofenceRoute,
-                arguments: {'attLocation': classLocation},
+                AppRouter.courseUnitDetailsRoute,
+                arguments: {"courseUnit": courseUnit},
               );
-            } on LocationNotFoundException {
-              showErrorDialog(context, LocationNotFoundException().toString());
-            } on GenericException {
-              showErrorDialog(context, GenericException().toString());
+            } on CourseUnitNotFoundException {
+              showErrorDialog(
+                  context, CourseUnitNotFoundException().toString());
             }
           },
           title: Text(
-            courseUnitName,
+            courseUnit.name,
             style: const TextStyle(color: Colors.white),
           ),
           subtitle: Text(
-            'Taught in $attLocationName',
+            'Taught in ${courseUnit.attendanceLocation}',
             style: const TextStyle(color: Colors.white),
           ),
           trailing: const Icon(

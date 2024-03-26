@@ -143,7 +143,6 @@ class _RegisterViewState extends State<AddStudentScreen> {
                                                     NoPhotoCapturedException()
                                                         .toString());
                                               } catch (error) {
-                                                print(error);
                                                 await showErrorDialog(
                                                     context,
                                                     GenericException()

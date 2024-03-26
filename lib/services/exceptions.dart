@@ -59,6 +59,13 @@ class CourseNotFoundException implements Exception {
   }
 }
 
+class CourseUnitNotFoundException implements Exception {
+  @override
+  String toString() {
+    return 'Course unit with that name does not exist';
+  }
+}
+
 class ManyOrNoFacesException implements Exception {
   @override
   String toString() {
@@ -69,7 +76,7 @@ class ManyOrNoFacesException implements Exception {
 class DimEnvironmentException implements Exception {
   @override
   String toString() {
-    return 'Please move to a location with more light';
+    return 'The image lacks enough lighting';
   }
 }
 

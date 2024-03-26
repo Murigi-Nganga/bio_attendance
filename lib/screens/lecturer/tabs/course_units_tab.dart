@@ -16,42 +16,47 @@ class CourseUnitsTab extends StatefulWidget {
 class _CourseUnitsTabState extends State<CourseUnitsTab> {
   late DatabaseProvider databaseProvider;
   late String lecturerEmail;
-  Lecturer? lecturer;
+  late Future<Lecturer?> lecturerFuture;
 
   @override
   void initState() {
-    databaseProvider = Provider.of<DatabaseProvider>(context, listen: false);
-    _fetchLecturer();
     super.initState();
+    databaseProvider = Provider.of<DatabaseProvider>(context, listen: false);
+    lecturerEmail = LocalStorage().getUser()!.identifier;
+    lecturerFuture = _fetchLecturer();
   }
 
-  _fetchLecturer() async {
-    lecturerEmail = LocalStorage().getUser()!.identifier;
-    lecturer = await databaseProvider.getLecturer(lecturerEmail);
-    if (mounted) {
-      setState(() {});
-    }
+  Future<Lecturer?> _fetchLecturer() async {
+    return databaseProvider.getLecturer(lecturerEmail);
   }
 
   @override
   Widget build(BuildContext context) {
-    // Check if lecturer is null before accessing courseUnits
-    final courseUnitNames = lecturer?.courseUnits ?? [];
-    final courseUnitLocations =
-        CourseList.getLocationsForCourseUnits(courseUnitNames);
+    return FutureBuilder<Lecturer?>(
+      future: lecturerFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}'));
+        } else {
+          final lecturer = snapshot.data;
+          final courseUnitNames = lecturer?.courseUnits ?? [];
+          final courseUnits =
+              CourseList.getCourseUnitsFromNames(courseUnitNames);
 
-    if (lecturer == null) {
-      return const Center(child: CircularProgressIndicator());
-    }
-    return ListView.builder(
-      shrinkWrap: true,
-      itemCount: courseUnitNames.length,
-      itemBuilder: (context, index) {
-        return CourseUnitCard(
-          courseUnitName: courseUnitNames[index],
-          attLocationName: courseUnitLocations[index],
-        );
+          return ListView.builder(
+            shrinkWrap: true,
+            itemCount: courseUnits.length,
+            itemBuilder: (context, index) {
+              return CourseUnitCard(
+                courseUnit: courseUnits[index],
+              );
+            },
+          );
+        }
       },
     );
   }
 }
+

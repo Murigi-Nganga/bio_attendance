@@ -15,7 +15,7 @@ class AdminHomeScreen extends StatefulWidget {
 class _AdminHomeScreenState extends State<AdminHomeScreen> {
   void _handleLogout(BuildContext context) async {
     await LocalStorage().deleteUser();
-    if (!mounted) return;
+    if (!context.mounted) return;
     Navigator.of(context).pushNamedAndRemoveUntil(
       AppRouter.userSelectionRoute,
       (route) => false,
