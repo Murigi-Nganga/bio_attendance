@@ -1,7 +1,11 @@
+import 'dart:io';
+
 import 'package:bio_attendance/models/attendance.dart';
+import 'package:bio_attendance/models/attendance_track.dart';
 import 'package:bio_attendance/services/exceptions.dart';
 import 'package:bio_attendance/models/role.dart';
 import 'package:bio_attendance/services/image_api_service.dart';
+import 'package:bio_attendance/services/local_storage.dart';
 import 'package:bio_attendance/utilities/helpers/password_hash.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -66,12 +70,17 @@ class DatabaseService {
   Future<void> addStudent(Map<String, dynamic> studentData) async {
     try {
       Map<String, dynamic> dbStudent = await getStudent(studentData['email']);
+
       if (dbStudent.isNotEmpty) {
         throw EmailAlreadyInUseException();
       }
+      
     } on UserNotFoundException {
       Map<String, dynamic> imgUploadResult =
           await _imageApiService.uploadImage(studentData['student_image']);
+
+      print("THE RESULT FOR UPLOADING THE IMAGE: ");
+      print(imgUploadResult);
 
       if (imgUploadResult["success"] == false) {
         throw ImageUploadErrorException();
@@ -97,7 +106,7 @@ class DatabaseService {
         'reg_no': studentData['reg_no'],
         'course': studentData['course'],
         'year_of_study': studentData['year_of_study'],
-        'facial_encodings': imgUploadResult["encodings"].toString(),
+        'face_encodings': imgUploadResult["encodings"].toString(),
       });
     } on EmailAlreadyInUseException {
       rethrow;
@@ -215,8 +224,117 @@ class DatabaseService {
     }
   }
 
-  Future<void> addAttendance(Attendance attendance) async =>
-      await _attendancesCollection.add(attendance.toJSON());
+  Future<void> addAttendance(Attendance attendance, File studImage) async {
+    try {
+      DateTime now = DateTime.now();
+      DateTime today = DateTime(now.year, now.month, now.day);
+
+      //* Check if another attendance for today for the same unit exists
+      QuerySnapshot querySnapshot = await _attendancesCollection
+          .where('student_reg_no', isEqualTo: attendance.studentRegNo)
+          .where('course_unit', isEqualTo: attendance.courseUnit)
+          .where('time_signed_in', isGreaterThanOrEqualTo: today)
+          .where('time_signed_in',
+              isLessThan: today.add(const Duration(days: 1)))
+          .get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        print(
+            "A ATTENDANCEALREADYTAKENEXCEPTION HAS OCCURRED | FN: ADDATTENDANCE - DATABASESERVICE");
+        throw AttendanceAlreadyTakenException();
+      }
+
+      //* Get student's stored face encodings
+      Map<String, dynamic> studentDetails =
+          await getStudent(attendance.studentRegNo);
+
+      print("STUDENT SUCCESSFULLY FOUND | FN: ADDATTENDANCE - DATABASESERVICE");
+
+      String faceEncodings = studentDetails['face_encodings'];
+
+      print(
+          "SAVED FACE ENCODINGS FOR THE STUDENT | FN: ADDATTENDANCE - DATABASESERVICE");
+      print("FACE ENCODINGS: $faceEncodings");
+
+      Map<String, dynamic> comparisonResult =
+          await _imageApiService.compareFaceEncodings(studImage, faceEncodings);
+
+      print(
+          "THE COMPARISON RESULT FOR THE FACES | FN: ADDATTENDANCE - DATABASESERVICE");
+      print("COMPARISON RESULT: $comparisonResult");
+
+      print(
+          "IS COMPARISON TRUE: ${comparisonResult["result"]} == true | FN: ADDATTENDANCE - DATABASESERVICE");
+
+      if (comparisonResult["success"] == true) {
+        AttendanceTrack? attTrack =
+            LocalStorage().getAttendnaceTrack(attendance.courseUnit);
+
+        print(
+            "COLLECTING ATTENDANCE TRACK | FN: ADDATTENDANCE - DATABASESERVICE");
+
+        if (attTrack == null) {
+          //* If attTrack is null, this is a sign in
+          await LocalStorage().addAttendanceTrack(AttendanceTrack(
+            courseUnit: attendance.courseUnit,
+            signInSuccessful: true,
+            timeSignedIn: DateTime.now(),
+          ));
+
+          print(
+              "SUCCESSFUL SIGN IN PERSISTED IN LOCAL STORAGE | FN: ADDATTENDANCE - DATABASESERVICE");
+
+          throw SuccessfulSIgnIn();
+        } else {
+          //* If attTrack is not null, this is a sign out
+
+          //* Get minute difference from sign in to now
+          int minuteDifference =
+              DateTime.now().difference(attTrack.timeSignedIn).inMinutes;
+
+          if (minuteDifference < 5) {
+            print(
+                "A WAITFORTIMETOELAPSEEXCEPTION HAS OCCURRED | FN: ADDATTENDANCE - DATABASESERVICE");
+            throw WaitForTimeElapseException(minToElapse: 5 - minuteDifference);
+          }
+
+          print("ATTTRACK NOT NULL | FN: ADDATTENDANCE - DATABASESERVICE");
+          print("ATTENDANCE TRACK COURSE UNIT: ${attendance.courseUnit}");
+          print("ATTENDANCE COURSE UNIT: ${attendance.courseUnit}");
+
+          //* If time is 5 minutes after, delete persisted attTrack
+          await LocalStorage().deleteAttendnaceTrack(attendance.courseUnit);
+
+          print(
+              "ATTENDANCE TRACK DELETED FROM LOCAL STORAGE | FN: ADDATTENDANCE - DATABASESERVICE");
+        }
+
+        await _attendancesCollection.add(attendance.toJSON());
+      } else {
+        if (comparisonResult["message"] == "Student faces don't match") {
+          throw FacesDontMatchException();
+        } else {
+          print("GENERIC EXCEPTION ON 308");
+          throw GenericException();
+        }
+      }
+    } on UserNotFoundException {
+      //* Abstract the UserNotFoundException from the user
+      throw GenericException();
+    } on AttendanceAlreadyTakenException {
+      rethrow;
+    } on FacesDontMatchException {
+      rethrow;
+    } on SuccessfulSIgnIn {
+      rethrow;
+    } on WaitForTimeElapseException {
+      rethrow;
+    } catch (error) {
+      print("ERROR HAS OCCURRED | FN: ADDATTENDANCE - DATABASESERVICE");
+      print("ERROR: ${error.toString()}");
+      rethrow;
+    }
+  }
 
   // Get the number of students
   Future<int> getNumberOfStudents(String courseName, int yearOfStudy) async {

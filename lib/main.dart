@@ -38,11 +38,13 @@ void main() async {
   //* Initialize hive boxes
   await Hive.openBox<AuthUser>('user');
   await Hive.openBox<String>('course');
+  await Hive.openBox<int>('year_of_study');
   await Hive.openBox<AttendanceTrack>('att_track');
 
   runApp(const App());
 }
 
+//TODO: Add onboarding pages 
 class App extends StatelessWidget {
   const App({super.key});
 

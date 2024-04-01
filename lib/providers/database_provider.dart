@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:bio_attendance/data/course_list.dart';
 import 'package:bio_attendance/models/attendance.dart';
 import 'package:bio_attendance/models/attendance_location.dart';
@@ -73,6 +75,7 @@ class DatabaseProvider extends ChangeNotifier {
               await _databaseService.getStudent(userData['identifier']));
 
           await LocalStorage().saveCourseName(student.course);
+          await LocalStorage().saveYearOfStudy(student.yearOfStudy);
         }
 
         await LocalStorage().saveUser(AuthUser.fromJSON(userData));
@@ -198,13 +201,32 @@ class DatabaseProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> addAttendance(Attendance attendance) async {
+  Future<void> addAttendance(Attendance attendance, File studImage) async {
     _isLoading = true;
     notifyListeners();
 
     try {
-      await _databaseService.addAttendance(attendance);
+      await _databaseService.addAttendance(attendance, studImage);
+      print("IT IS WELL :) ");
+    } on AttendanceAlreadyTakenException {
+      print(
+          "A ATTENDANCEALREADYTAKENEXCEPTION HAS OCCURRED | FN: ADDATTENDANCE - DATABASEPROVIDER");
+      rethrow;
+    } on FacesDontMatchException {
+      print(
+          "A FACESDONTMATCHEXCEPTION HAS OCCURRED | FN: ADDATTENDANCE - DATABASEPROVIDER");
+      rethrow;
+    } on SuccessfulSIgnIn {
+      print(
+          "A SUCCESSFULSIGNIN HAS OCCURRED | FN: ADDATTENDANCE - DATABASEPROVIDER");
+      rethrow;
+    } on WaitForTimeElapseException {
+      print(
+          "A WAITFORTIMETOELAPSEEXCEPTION HAS OCCURRED | FN: ADDATTENDANCE - DATABASEPROVIDER");
+      rethrow;
     } catch (_) {
+      print(
+          "A GENERICEXCEPTION HAS OCCURRED | FN: ADDATTENDANCE - DATABASEPROVIDER | ${_.toString()}");
       throw GenericException();
     } finally {
       _isLoading = false;

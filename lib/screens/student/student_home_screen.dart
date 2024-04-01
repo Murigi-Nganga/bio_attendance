@@ -44,6 +44,7 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    //TODO: Add an INFO action to show the process of taking attendance
     return Scaffold(
       appBar: AppBar(
         title: Text(_tabTitles[_currentIndex]),

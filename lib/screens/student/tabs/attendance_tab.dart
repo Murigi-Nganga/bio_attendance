@@ -3,6 +3,7 @@ import 'package:bio_attendance/models/attendance.dart';
 import 'package:bio_attendance/models/attendance_location.dart';
 import 'package:bio_attendance/models/attendance_track.dart';
 import 'package:bio_attendance/providers/database_provider.dart';
+import 'package:bio_attendance/providers/student_image_provider.dart';
 import 'package:bio_attendance/services/exceptions.dart';
 import 'package:bio_attendance/services/local_storage.dart';
 import 'package:bio_attendance/utilities/dialogs/error_dialog.dart';
@@ -28,12 +29,13 @@ class _AttendanceTabState extends State<AttendanceTab> {
 
   final LocalAuthentication auth = LocalAuthentication();
   bool? isAuthenticated;
-  int _yearOfStudy = 1;
+  late int _yearOfStudy;
   late String _selectedCourseUnit;
   late String _studentRegNo;
 
   @override
   void initState() {
+    _yearOfStudy = LocalStorage().getYearOfStudy()!;
     _studentRegNo = LocalStorage().getUser()!.identifier;
     _studentCourseName = LocalStorage().getCourseName();
     _selectedCourseUnit = CourseList.getUnitsForYearAndCourse(
@@ -47,34 +49,6 @@ class _AttendanceTabState extends State<AttendanceTab> {
     DatabaseProvider databaseProvider,
   ) async {
     bool isInAttLocation = false;
-
-    AttendanceTrack? attTrack =
-        LocalStorage().getAttendnaceTrack(attendanceDetails['course_unit']);
-
-    if (attTrack == null) {
-      await LocalStorage().addAttendanceTrack(AttendanceTrack(
-        courseUnit: attendanceDetails['course_unit'],
-        signInSuccessful: true,
-        timeSignedIn: attendanceDetails['time_signed_in'],
-      ));
-
-      if (!mounted) return;
-      await showSuccessDialog(context, 'Sign in recorded successfully');
-      databaseProvider.changeLoadingStatus(false);
-      return;
-    }
-
-    // Get minute difference from sign in to now
-    int minuteDifference =
-        DateTime.now().difference(attTrack.timeSignedIn).inMinutes;
-
-    if (minuteDifference < 10) {
-      await showErrorDialog(
-          context,
-          'Sign out cannot be recorded now \n'
-          'Wait for ${10 - minuteDifference} more minutes to elapse');
-      return;
-    }
 
     try {
       String courseLocation =
@@ -97,6 +71,7 @@ class _AttendanceTabState extends State<AttendanceTab> {
 
       Position currentLocation = await getCurrentLocation();
 
+      //* Check if student is in the correct location
       isInAttLocation = isPointInPolygon(
         LatLng(currentLocation.latitude, currentLocation.longitude),
         attLocation.polygonPoints!,
@@ -119,12 +94,6 @@ class _AttendanceTabState extends State<AttendanceTab> {
         'You are not in the correct location for the class',
       );
       return;
-    } else {
-      await showSuccessDialog(
-        context,
-        'You are in the correct location \n\n'
-        'You will be prompted to authenticate using your fingerprint',
-      );
     }
 
     final bool canAuthenticateWithBiometrics = await auth.canCheckBiometrics;
@@ -139,6 +108,7 @@ class _AttendanceTabState extends State<AttendanceTab> {
     final List<BiometricType> availableBiometrics =
         await auth.getAvailableBiometrics();
 
+    //* Do fingerprint auth
     if (availableBiometrics.isNotEmpty) {
       try {
         final bool didAuthenticate = await auth.authenticate(
@@ -148,42 +118,66 @@ class _AttendanceTabState extends State<AttendanceTab> {
             stickyAuth: true,
           ),
         );
-        if (!mounted) return;
         if (didAuthenticate) {
           setState(() {
             isAuthenticated = true;
           });
 
-          try {
-            await databaseProvider.addAttendance(Attendance(
+          await databaseProvider.addAttendance(
+            Attendance(
               studentRegNo: _studentRegNo,
               yearOfStudy: attendanceDetails['year_of_study'],
               timeSignedIn: DateTime.now(),
               course: attendanceDetails['course'],
               courseUnit: attendanceDetails['course_unit'],
-            ));
+            ),
+            attendanceDetails['student_image'],
+          );
 
-            if (!mounted) return;
-            await showSuccessDialog(
-                context, 'Complete attendance recorded successfully');
-          } catch (_) {
-            if (!mounted) return;
-            await showErrorDialog(context, GenericException().toString());
-          }
+          if (!mounted) return;
+          await showSuccessDialog(context, 'Sign out recorded successfully');
         } else {
           setState(() {
             isAuthenticated = false;
           });
+          if (!mounted) return;
           await showErrorDialog(context, 'Authentication failed');
         }
+      } on AttendanceAlreadyTakenException {
+        if (!mounted) return;
+        await showErrorDialog(
+            context, AttendanceAlreadyTakenException().toString());
+      } on FacesDontMatchException {
+        if (!mounted) return;
+        await showErrorDialog(context, FacesDontMatchException().toString());
+      } on SuccessfulSIgnIn {
+        if (!mounted) return;
+        await showSuccessDialog(context, SuccessfulSIgnIn().toString());
+      } on WaitForTimeElapseException {
+        AttendanceTrack? attTrack = LocalStorage()
+            .getAttendnaceTrack(attendanceDetails['course_unit'])!;
+
+        int minuteDifference =
+            DateTime.now().difference(attTrack.timeSignedIn).inMinutes;
+        if (!mounted) return;
+        await showErrorDialog(
+            context,
+            WaitForTimeElapseException(minToElapse: minuteDifference)
+                .toString());
+      } on GenericException {
+        if (!mounted) return;
+        await showErrorDialog(context, GenericException().toString());
       } catch (e) {
         if (!mounted) return;
         setState(() {
           isAuthenticated = null;
         });
-        await showErrorDialog(context, 'Could not do authentication');
+        await showErrorDialog(context, e.toString());
       }
-    } //TODO: Add an else block if features not "activated"
+    } else {
+      if (!mounted) return;
+      await showErrorDialog(context, 'Could not do authentication');
+    }
 
     databaseProvider.changeLoadingStatus(false);
   }
@@ -207,28 +201,69 @@ class _AttendanceTabState extends State<AttendanceTab> {
               const SizedBox(
                 height: SpaceSize.medium,
               ),
-              const Text('Select year of study'),
-              const SizedBox(height: SpaceSize.small),
-              AppDropdownButton<int>(
-                items: [1, 2, 3, 4]
-                    .map(
-                      (number) => DropdownMenuItem(
-                        value: number,
-                        child: Text(number.toString()),
-                      ),
-                    )
-                    .toList(),
-                value: _yearOfStudy,
-                onChanged: (newValue) {
-                  setState(() {
-                    _yearOfStudy = newValue!;
-                    _selectedCourseUnit = CourseList.getUnitsForYearAndCourse(
-                            year: _yearOfStudy, courseName: _studentCourseName!)
-                        .first;
-                  });
-                },
+              Text(
+                'Year $_yearOfStudy',
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: FontSize.small,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
-              const SizedBox(height: SpaceSize.medium),
+              const SizedBox(height: SpaceSize.large),
+              Consumer<StudentImageProvider>(builder: (_, imgProvider, __) {
+                if (imgProvider.isLoading) {
+                  return const LinearProgressIndicator();
+                } else {
+                  return Column(
+                    children: [
+                      CircleAvatar(
+                        backgroundColor:
+                            Theme.of(context).colorScheme.secondary,
+                        backgroundImage: imgProvider.studImage == null
+                            ? null
+                            : FileImage(imgProvider.studImage!),
+                        radius: 100,
+                        child: imgProvider.studImage == null
+                            ? const Icon(
+                                Icons.person,
+                                size: 70,
+                                color: Colors.white,
+                              )
+                            : null,
+                      ),
+                      const SizedBox(height: SpaceSize.large),
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width * .7,
+                        child: OutlinedButton(
+                          onPressed: () async {
+                            try {
+                              await imgProvider.takePicture(context);
+                              if (!context.mounted) return;
+                            } on ManyOrNoFacesException {
+                              await showErrorDialog(
+                                  context, ManyOrNoFacesException().toString());
+                            } on IncorrectHeadPositionException {
+                              await showErrorDialog(context,
+                                  IncorrectHeadPositionException().toString());
+                            } on DimEnvironmentException {
+                              await showErrorDialog(context,
+                                  DimEnvironmentException().toString());
+                            } on NoPhotoCapturedException {
+                              await showErrorDialog(context,
+                                  NoPhotoCapturedException().toString());
+                            } catch (error) {
+                              await showErrorDialog(
+                                  context, GenericException().toString());
+                            }
+                          },
+                          child: const Text('Take picture'),
+                        ),
+                      ),
+                    ],
+                  );
+                }
+              }),
+              const SizedBox(height: SpaceSize.large),
               const Text(
                 'Select course unit',
               ),
@@ -251,28 +286,41 @@ class _AttendanceTabState extends State<AttendanceTab> {
                 },
               ),
               const SizedBox(height: SpaceSize.large),
-              Consumer<DatabaseProvider>(
-                builder: (_, databaseProvider, __) {
-                  if (databaseProvider.isLoading) {
-                    return const LinearProgressIndicator();
-                  }
-                  return ElevatedButton(
-                    onPressed: () => _submitDetails({
-                      'course': _studentCourseName,
-                      'year_of_study': _yearOfStudy,
-                      'course_unit': _selectedCourseUnit,
-                      'time_signed_in': DateTime.now(),
-                    }, databaseProvider),
-                    child: const Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text('Authenticate'),
-                        SizedBox(width: SpaceSize.medium),
-                        Icon(Icons.fingerprint_rounded)
-                      ],
-                    ),
-                  );
-                },
+              Consumer<StudentImageProvider>(
+                builder: (_, imgProvider, __) => Consumer<DatabaseProvider>(
+                  builder: (_, databaseProvider, __) {
+                    if (databaseProvider.isLoading) {
+                      return const LinearProgressIndicator();
+                    }
+                    return ElevatedButton(
+                      onPressed: () async {
+                        if (imgProvider.studImage == null) {
+                          await showErrorDialog(
+                              context, 'Please add a student image');
+                          return;
+                        }
+
+                        await _submitDetails(
+                          {
+                            'course': _studentCourseName,
+                            'year_of_study': _yearOfStudy,
+                            'course_unit': _selectedCourseUnit,
+                            'student_image': imgProvider.studImage
+                          },
+                          databaseProvider,
+                        );
+                      },
+                      child: const Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text('Authenticate'),
+                          SizedBox(width: SpaceSize.medium),
+                          Icon(Icons.blur_circular),
+                        ],
+                      ),
+                    );
+                  },
+                ),
               ),
               const SizedBox(height: 20),
             ],

@@ -107,3 +107,37 @@ class ImageUploadErrorException implements Exception {
     return 'Image could not be uploaded';
   }
 }
+
+class FacesDontMatchException implements Exception {
+  @override
+  String toString() {
+    return "Student faces don't match";
+  }
+}
+
+class WaitForTimeElapseException implements Exception {
+  WaitForTimeElapseException({required this.minToElapse});
+
+  final int minToElapse;
+
+  @override
+  String toString() {
+    return 'Wait for $minToElapse more minutes to elapse before you can sign out';
+  }
+}
+
+class AttendanceAlreadyTakenException implements Exception {
+  @override
+  String toString() {
+    return 'Attendance for the course unit has already been taken';
+  }
+}
+
+//* Not an exception really, but helps in propagating
+//* a success message back to the UI layer
+class SuccessfulSIgnIn implements Exception {
+  @override
+  String toString() {
+    return 'Attendance for the course unit has already been taken';
+  }
+}

@@ -13,6 +13,7 @@ class LocalStorage {
 
   final Box<AuthUser> _userBox = Hive.box<AuthUser>('user');
   final Box<String> _courseNameBox = Hive.box<String>('course');
+  final Box<int> _yearOfStudyBox = Hive.box<int>('year_of_study');
   final Box<AttendanceTrack> _attTrackBox =
       Hive.box<AttendanceTrack>('att_track');
 
@@ -25,6 +26,7 @@ class LocalStorage {
     await _userBox.clear();
     await _courseNameBox.clear();
     await _attTrackBox.clear();
+    await _yearOfStudyBox.clear();
   }
 
   Future<void> saveCourseName(String courseName) async =>
@@ -32,9 +34,17 @@ class LocalStorage {
 
   String? getCourseName() => _courseNameBox.get('course_name');
 
+  Future<void> saveYearOfStudy(int yearOfStudy) async =>
+      await _yearOfStudyBox.put('study_year', yearOfStudy);
+
+  int? getYearOfStudy() => _yearOfStudyBox.get('study_year');
+
   Future<void> addAttendanceTrack(AttendanceTrack attTrack) async =>
       await _attTrackBox.put(attTrack.courseUnit, attTrack);
 
   AttendanceTrack? getAttendnaceTrack(String courseUnit) =>
       _attTrackBox.get(courseUnit);
+
+  Future<void> deleteAttendnaceTrack(String courseUnit) async =>
+      await _attTrackBox.delete(courseUnit);
 }

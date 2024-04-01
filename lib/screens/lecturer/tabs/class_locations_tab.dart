@@ -44,7 +44,6 @@ class _ClassLocationsTabState extends State<ClassLocationsTab> {
           final courseUnitNames = lecturer?.courseUnits ?? [];
           final courseUnitLocations =
               CourseList.getLocationsForCourseUnits(courseUnitNames).toSet();
-
           return ListView.builder(
             shrinkWrap: true,
             itemCount: courseUnitLocations.length,

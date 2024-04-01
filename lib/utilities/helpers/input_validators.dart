@@ -25,7 +25,7 @@ String? validateEmail(String? email) {
 }
 
 String? validateRegNumber(String? regNumber) {
-  RegExp regNumberRegex = RegExp(r'^[|A-Za-z0-9/]+$');
+  RegExp regNumberRegex = RegExp(r'^[|A-Za-z0-9/-]+$');
 
   if (regNumber!.trim().isEmpty) {
     return 'Enter a registration number';

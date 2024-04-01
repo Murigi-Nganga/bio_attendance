@@ -4,7 +4,7 @@ class Student {
   final String course;
   final String email;
   final int yearOfStudy;
-  final String facialEncodings;
+  final String faceEncodings;
 
   const Student({
     required this.name,
@@ -12,7 +12,7 @@ class Student {
     required this.course,
     required this.email,
     required this.yearOfStudy,
-    required this.facialEncodings,
+    required this.faceEncodings,
   });
 
   factory Student.fromJson(Map<String, dynamic> data) => Student(
@@ -21,7 +21,7 @@ class Student {
         course: data['course'],
         email: data['email'],
         yearOfStudy: data['year_of_study'],
-        facialEncodings: data['facial_encodings'],
+        faceEncodings: data['face_encodings'],
       );
 
   Map<String, String> toJson() => {
@@ -30,6 +30,6 @@ class Student {
         'course': course,
         'email': email,
         'year_of_study': yearOfStudy.toString(),
-        'facial_encodings': facialEncodings
+        'face_encodings': faceEncodings
       };
 }

@@ -26,8 +26,10 @@ class StudentImageProvider extends ChangeNotifier {
     if (faces.length != 1) {
       throw ManyOrNoFacesException();
     } else {
+      
       final Uint8List bytes = await imageFile.readAsBytes();
       final Completer<ui.Image> completer = Completer();
+
       ui.decodeImageFromList(
           bytes, (ui.Image image) => completer.complete(image));
       final imageForBrightness = await completer.future;
@@ -35,7 +37,7 @@ class StudentImageProvider extends ChangeNotifier {
       //* Brightness of the image
       double brightness = await calculateImageBrightness(imageForBrightness);
 
-      if (brightness < 50) {
+      if (brightness < 40) {
         throw DimEnvironmentException();
       }
 

@@ -295,6 +295,7 @@ class _RegisterViewState extends State<AddStudentScreen> {
                                   if (imgProvider.studImage == null) {
                                     await showErrorDialog(
                                         context, 'Please add a student image!');
+                                        return;
                                   }
 
                                   if (!_formKey.currentState!.validate()) {
@@ -343,7 +344,9 @@ class _RegisterViewState extends State<AddStudentScreen> {
                                     if (!context.mounted) return;
                                     showErrorDialog(
                                       context,
-                                      GenericException().toString(),
+                                      '${GenericException().toString()}. Please ensure'
+                                      ' that the face in the image you have captured can'
+                                      ' be clearly seen',
                                     );
                                   }
                                 },
