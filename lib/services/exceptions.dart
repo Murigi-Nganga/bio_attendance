@@ -122,14 +122,18 @@ class WaitForTimeElapseException implements Exception {
 
   @override
   String toString() {
-    return 'Wait for $minToElapse more minutes to elapse before you can sign out';
+    return 'Wait for $minToElapse more minute(s) to elapse before you can sign out';
   }
 }
 
 class AttendanceAlreadyTakenException implements Exception {
+  AttendanceAlreadyTakenException({required this.courseUnit});
+
+  final String courseUnit;
+
   @override
   String toString() {
-    return 'Attendance for the course unit has already been taken';
+    return 'Attendance for $courseUnit for today has already been taken';
   }
 }
 

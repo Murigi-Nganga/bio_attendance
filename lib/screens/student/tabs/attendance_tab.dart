@@ -146,7 +146,10 @@ class _AttendanceTabState extends State<AttendanceTab> {
       } on AttendanceAlreadyTakenException {
         if (!mounted) return;
         await showErrorDialog(
-            context, AttendanceAlreadyTakenException().toString());
+            context,
+            AttendanceAlreadyTakenException(
+                    courseUnit: attendanceDetails['course_unit'])
+                .toString());
       } on FacesDontMatchException {
         if (!mounted) return;
         await showErrorDialog(context, FacesDontMatchException().toString());
@@ -191,7 +194,7 @@ class _AttendanceTabState extends State<AttendanceTab> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(
-                _studentCourseName!,
+                _studentRegNo,
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   fontSize: FontSize.medium,
@@ -202,7 +205,7 @@ class _AttendanceTabState extends State<AttendanceTab> {
                 height: SpaceSize.medium,
               ),
               Text(
-                'Year $_yearOfStudy',
+                '${_studentCourseName!}, Year $_yearOfStudy',
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   fontSize: FontSize.small,
@@ -284,6 +287,13 @@ class _AttendanceTabState extends State<AttendanceTab> {
                     _selectedCourseUnit = newValue!;
                   });
                 },
+              ),
+              const SizedBox(height: SpaceSize.medium),
+              Text(
+                'Taught in location ${CourseList.getLocationsForCourseUnits([
+                      _selectedCourseUnit
+                    ])[0]}',
+                textAlign: TextAlign.center,
               ),
               const SizedBox(height: SpaceSize.large),
               Consumer<StudentImageProvider>(

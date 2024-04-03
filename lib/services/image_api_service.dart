@@ -81,11 +81,10 @@ class ImageAPIService {
       var response = await request.send();
       print(
           "RESPONSE FOR API CALL | FN: COMPAREFACEENCODINGS - IMAGEAPISERVICE");
-      print(
-          "RESPONSE FOR API CALL: $response");
+      print("RESPONSE FOR API CALL: $response");
       var responseBody = json.decode(await response.stream.bytesToString())
           as Map<String, dynamic>;
-       print(
+      print(
           "RESPONSE BODY: $responseBody | FN: COMPAREFACEENCODINGS - IMAGEAPISERVICE");
 
       if (response.statusCode == 200) {
@@ -101,10 +100,9 @@ class ImageAPIService {
         result["message"] = "Somethng went wrong";
       }
     } catch (error) {
-       print(
-          "AN ERROR HAS OCCURRED | FN: COMPAREFACEENCODINGS - IMAGEAPISERVICE");
       print(
-          "ERROR: $error");
+          "AN ERROR HAS OCCURRED | FN: COMPAREFACEENCODINGS - IMAGEAPISERVICE");
+      print("ERROR: $error");
 
       result["success"] = false;
       result["message"] = "Please check your internet connection";

@@ -45,6 +45,8 @@ class LocalStorage {
   AttendanceTrack? getAttendnaceTrack(String courseUnit) =>
       _attTrackBox.get(courseUnit);
 
+  List<AttendanceTrack> getAttendanceTracks() => _attTrackBox.values.toList();
+
   Future<void> deleteAttendnaceTrack(String courseUnit) async =>
       await _attTrackBox.delete(courseUnit);
 }

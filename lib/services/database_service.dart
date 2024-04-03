@@ -2,10 +2,12 @@ import 'dart:io';
 
 import 'package:bio_attendance/models/attendance.dart';
 import 'package:bio_attendance/models/attendance_track.dart';
+import 'package:bio_attendance/models/student.dart';
 import 'package:bio_attendance/services/exceptions.dart';
 import 'package:bio_attendance/models/role.dart';
 import 'package:bio_attendance/services/image_api_service.dart';
 import 'package:bio_attendance/services/local_storage.dart';
+import 'package:bio_attendance/utilities/helpers/date_utils.dart';
 import 'package:bio_attendance/utilities/helpers/password_hash.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -74,7 +76,6 @@ class DatabaseService {
       if (dbStudent.isNotEmpty) {
         throw EmailAlreadyInUseException();
       }
-      
     } on UserNotFoundException {
       Map<String, dynamic> imgUploadResult =
           await _imageApiService.uploadImage(studentData['student_image']);
@@ -227,23 +228,30 @@ class DatabaseService {
   Future<void> addAttendance(Attendance attendance, File studImage) async {
     try {
       DateTime now = DateTime.now();
-      DateTime today = DateTime(now.year, now.month, now.day);
+      DateTime startOfDay = DateTime(now.year, now.month, now.day);
+      DateTime startOfNextDay = startOfDay.add(const Duration(days: 1));
 
-      //* Check if another attendance for today for the same unit exists
       QuerySnapshot querySnapshot = await _attendancesCollection
           .where('student_reg_no', isEqualTo: attendance.studentRegNo)
           .where('course_unit', isEqualTo: attendance.courseUnit)
-          .where('time_signed_in', isGreaterThanOrEqualTo: today)
-          .where('time_signed_in',
-              isLessThan: today.add(const Duration(days: 1)))
           .get();
 
-      if (querySnapshot.docs.isNotEmpty) {
-        print(
-            "A ATTENDANCEALREADYTAKENEXCEPTION HAS OCCURRED | FN: ADDATTENDANCE - DATABASESERVICE");
-        throw AttendanceAlreadyTakenException();
-      }
+      for (QueryDocumentSnapshot queryDocSnapshot in querySnapshot.docs) {
+        Map<String, dynamic> data =
+            queryDocSnapshot.data() as Map<String, dynamic>;
+        DateTime storedDateTime = DateTime.fromMillisecondsSinceEpoch(
+          data['time_signed_in'].seconds * 1000 +
+              (data['time_signed_in'].nanoseconds / 1000000).round(),
+        ).toLocal();
 
+        if (storedDateTime.isAfter(startOfDay) &&
+            storedDateTime.isBefore(startOfNextDay)) {
+          print(
+              "A ATTENDANCEALREADYTAKENEXCEPTION HAS OCCURRED | FN: ADDATTENDANCE - DATABASESERVICE");
+          throw AttendanceAlreadyTakenException(
+              courseUnit: attendance.courseUnit);
+        }
+      }
       //* Get student's stored face encodings
       Map<String, dynamic> studentDetails =
           await getStudent(attendance.studentRegNo);
@@ -295,7 +303,7 @@ class DatabaseService {
           if (minuteDifference < 5) {
             print(
                 "A WAITFORTIMETOELAPSEEXCEPTION HAS OCCURRED | FN: ADDATTENDANCE - DATABASESERVICE");
-            throw WaitForTimeElapseException(minToElapse: 5 - minuteDifference);
+            throw WaitForTimeElapseException(minToElapse: minuteDifference);
           }
 
           print("ATTTRACK NOT NULL | FN: ADDATTENDANCE - DATABASESERVICE");
@@ -336,13 +344,49 @@ class DatabaseService {
     }
   }
 
-  // Get the number of students
-  Future<int> getNumberOfStudents(String courseName, int yearOfStudy) async {
+  //* Total number of students taking a course
+  Future<List<Student>> getStudentsForCourse(
+      String courseName, int yearOfStudy) async {
     QuerySnapshot querySnapshot = await _studentsCollection
-        .where('course_name', isEqualTo: courseName)
+        .where('course', isEqualTo: courseName)
         .where('year_of_study', isEqualTo: yearOfStudy)
         .get();
 
-    return querySnapshot.size;
+    List<Student> students = querySnapshot.docs
+        .map((QueryDocumentSnapshot queryDocSnapshot) =>
+            Student.fromJson(queryDocSnapshot.data() as Map<String, dynamic>))
+        .toList();
+
+    return students;
+  }
+
+  Future<List<Attendance>> getSignedStudentsForCourseUnit(
+      String courseUnit) async {
+    QuerySnapshot querySnapshot = await _attendancesCollection
+        .where('course_unit', isEqualTo: courseUnit)
+        .get();
+
+    List<Attendance> attendances = querySnapshot.docs
+        .map((QueryDocumentSnapshot queryDocSnapshot) => Attendance.fromJSON(
+            queryDocSnapshot.data() as Map<String, dynamic>))
+        .toList()
+        //* Attendance falls in the bracket of today
+        .where((attendance) => isWithinToday(attendance.timeSignedIn))
+        .toList();
+
+    return attendances;
+  }
+
+  Future<List<Attendance>> getStudentAttendances(String studentRegNo) async {
+    QuerySnapshot querySnapshot = await _attendancesCollection
+        .where('student_reg_no', isEqualTo: studentRegNo)
+        .get();
+
+    List<Attendance> attendances = querySnapshot.docs
+        .map((QueryDocumentSnapshot queryDocSnapshot) => Attendance.fromJSON(
+            queryDocSnapshot.data() as Map<String, dynamic>))
+        .toList();
+
+    return attendances;
   }
 }

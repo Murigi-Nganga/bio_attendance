@@ -234,27 +234,57 @@ class DatabaseProvider extends ChangeNotifier {
     }
   }
 
-  Future<int> getNumberOfStudents(String courseUnitName) async {
+  Future<Map<String, dynamic>> getCourseUnitStatistics(
+      String courseUnitName) async {
     _isLoading = true;
     notifyListeners();
 
-    int numberOfStudents = 0;
+    Map<String, dynamic> courseUnitStatistics = {};
+
     Map<String, dynamic> details;
 
     try {
       details = CourseList.getCourseNameAndYearOfStudy(courseUnitName);
-      await _databaseService.getNumberOfStudents(
+      List<Student> students = await _databaseService.getStudentsForCourse(
         details['course_name'],
         details['year_of_study'],
       );
+
+      List<Attendance> attendances =
+          await _databaseService.getSignedStudentsForCourseUnit(courseUnitName);
+
+      courseUnitStatistics['students'] = students;
+      courseUnitStatistics['attendances'] = attendances;
     } on CourseNotFoundException {
       rethrow;
     } catch (_) {
+      print("A GENERIC EXCEPTION HAS OCCURRED!!!");
+      print(_);
       throw GenericException();
     } finally {
       _isLoading = false;
     }
 
-    return numberOfStudents;
+    return courseUnitStatistics;
+  }
+
+  Future<List<Attendance>> getStudentAttendances(String studentRegNo) async {
+    _isLoading = true;
+    notifyListeners();
+
+    List<Attendance> studentAttendances = [];
+
+    try {
+      studentAttendances =
+          await _databaseService.getStudentAttendances(studentRegNo);
+    }catch (_) {
+      print("A GENERIC EXCEPTION HAS OCCURRED!!!");
+      print(_);
+      throw GenericException();
+    } finally {
+      _isLoading = false;
+    }
+
+    return studentAttendances;
   }
 }
