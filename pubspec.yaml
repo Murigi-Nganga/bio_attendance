@@ -1,7 +1,7 @@
 name: bio_attendance
 description: "A new Flutter project."
 publish_to: "none"
-version: 0.1.0
+version: 0.3.0
 
 environment:
   sdk: ">=3.2.4 <4.0.0"
@@ -46,6 +46,8 @@ flutter:
     - assets/images/student.png
     - assets/images/search.png
     - assets/images/add_user.png
+    - assets/images/not_found.png
+    - assets/images/not_found_2.png
 
   fonts:
     - family: Quicksand

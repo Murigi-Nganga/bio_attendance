@@ -287,4 +287,24 @@ class DatabaseProvider extends ChangeNotifier {
 
     return studentAttendances;
   }
+
+  Future<List<Attendance>> getAllAttendances() async {
+    _isLoading = true;
+    notifyListeners();
+
+    List<Attendance> attendances = [];
+
+    try {
+      attendances =
+          await _databaseService.getAllAttendances();
+    }catch (_) {
+      print("A GENERIC EXCEPTION HAS OCCURRED!!!");
+      print(_);
+      throw GenericException();
+    } finally {
+      _isLoading = false;
+    }
+
+    return attendances;
+  }
 }

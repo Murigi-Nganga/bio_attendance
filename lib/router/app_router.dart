@@ -14,6 +14,7 @@ import 'package:bio_attendance/screens/auth/user_selection_screen.dart';
 import 'package:bio_attendance/screens/lecturer/lecturer_home_screen.dart';
 import 'package:bio_attendance/screens/lecturer/location_geofence_screen.dart';
 import 'package:bio_attendance/screens/lecturer/unit_details_screen.dart';
+import 'package:bio_attendance/screens/student/attendance_percentages_screen.dart';
 import 'package:bio_attendance/screens/student/student_home_screen.dart';
 import 'package:bio_attendance/models/role.dart';
 import 'package:flutter/material.dart';
@@ -32,6 +33,7 @@ class AppRouter {
   static const courseUnitDetailsRoute = '/courseunit/details';
   static const takePictureRoute = '/admin/take-picture';
   static const imagePreviewRoute = '/admin/image-preview-route';
+  static const attendancePercentagesRoute = '/attendance-percentage';
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
     final args = settings.arguments;
@@ -98,6 +100,11 @@ class AppRouter {
       case imagePreviewRoute:
         return MaterialPageRoute(
           builder: (context) => const ImagePreviewScreen(),
+        );
+        case attendancePercentagesRoute:
+        Map<String, int> courseStats = (args as Map<String, dynamic>)['course_stats'];
+        return MaterialPageRoute(
+          builder: (context) => AttendancePrecentagesScreen(courseStats: courseStats),
         );
       default:
         return MaterialPageRoute(

@@ -1,7 +1,9 @@
 import 'package:bio_attendance/models/attendance.dart';
 import 'package:bio_attendance/providers/database_provider.dart';
+import 'package:bio_attendance/router/app_router.dart';
 import 'package:bio_attendance/services/local_storage.dart';
-import 'package:bio_attendance/utilities/helpers/date_utils.dart';
+import 'package:bio_attendance/utilities/helpers/stats_utils.dart';
+import 'package:bio_attendance/widgets/app_horizontal_bar_chart.dart';
 // import 'package:bio_attendance/widgets/app_bar_chart.dart';
 import 'package:bio_attendance/widgets/attendance_summary_card.dart';
 import 'package:bio_attendance/widgets/grid_app_bar_chart.dart';
@@ -41,72 +43,168 @@ class ReportsTab extends StatelessWidget {
     return barData;
   }
 
+  List<Map<String, dynamic>> convertToChartData(
+      Map<String, int> attendanceStatistics) {
+    List<Map<String, dynamic>> chartData = [];
+
+    attendanceStatistics.forEach((courseUnit, count) {
+      chartData.add({
+        'label': courseUnit,
+        'colors': [generateRandomColor(), generateRandomColor()],
+        'value': count.toDouble(),
+      });
+    });
+
+    return chartData;
+  }
+
   @override
   Widget build(BuildContext context) {
     String studentRegNo = LocalStorage().getUser()!.identifier;
+    String courseName = LocalStorage().getCourseName()!;
+    int yearOfStudy = LocalStorage().getYearOfStudy()!;
 
-    return FutureBuilder<List<Attendance>>(
-      future: Provider.of<DatabaseProvider>(context)
-          .getStudentAttendances(studentRegNo),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const LinearProgressIndicator();
-        } else if (snapshot.hasError) {
-          return Center(child: Text('Error: ${snapshot.error}'));
-        } else {
-          List<Attendance> attendances = snapshot.data ?? [];
-          List<Attendance> todaysAttendances = attendances
-              .where((attendance) => isWithinToday(attendance.timeSignedIn))
-              .toList();
+    return SingleChildScrollView(
+      child: FutureBuilder<List<Attendance>>(
+        future: Provider.of<DatabaseProvider>(context)
+            .getStudentAttendances(studentRegNo),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const LinearProgressIndicator();
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          } else {
+            List<Attendance> attendances = snapshot.data ?? [];
+            List<Attendance> todaysAttendances = attendances
+                .where((attendance) => isWithinToday(attendance.timeSignedIn))
+                .toList();
 
-          Map<String, int> dayOccurrences =
-              groupAttendanceStatisticsByDay(attendances);
+            Map<String, int> courseUnitStats =
+                groupAttendanceStatisticsByCourseUnit(
+                    attendances, courseName, yearOfStudy);
 
-          List<double> chartData =
-              dayOccurrences.values.map((value) => value.toDouble()).toList();
-          List<String> chartLabels = dayOccurrences.keys.toList();
+            Map<String, int> dayOccurrences =
+                groupAttendanceStatisticsByDay(attendances);
 
-          return Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const Text("My Attendance Summary"),
-              const Divider(
-                height: 8,
-                thickness: 1,
+            List<double> chartData =
+                dayOccurrences.values.map((value) => value.toDouble()).toList();
+            List<String> chartLabels = dayOccurrences.keys.toList();
+
+            return SingleChildScrollView(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const Text(
+                    "My Attendance Summary",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        fontSize: 18,
+                        color: Color.fromARGB(255, 27, 84, 110),
+                        fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 4),
+                  const Divider(
+                    thickness: 1,
+                    color: Colors.black38,
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    "Attendances for today",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        fontSize: 16,
+                        color: Color.fromARGB(255, 6, 96, 138),
+                        fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8),
+                  todaysAttendances.isEmpty ?
+                      Column(
+                        children: [
+                          Image.asset('assets/images/not_found.png', height: 200),
+                      const SizedBox(height: 5),
+                            const Text(
+                              "Today's attendances will appear here once you take them",
+                              textAlign: TextAlign.center,
+                            )
+                        ]
+                      ) :
+                            ListView.builder(
+                              shrinkWrap: true,
+                              itemCount: todaysAttendances.length,
+                              itemBuilder: (context, index) {
+                                var attendance = todaysAttendances[index];
+                                return AttendanceSummaryCard(
+                                  courseUnit: attendance.courseUnit,
+                                  timeSignedIn: attendance.timeSignedIn,
+                                );
+                              },
+                            ),
+                  const SizedBox(height: 20),
+                  const Text(
+                    'General Statistics',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        fontSize: 17,
+                        color: Color.fromARGB(255, 69, 5, 118),
+                        fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 4),
+                  chartData.reduce((value, element) => value + element) == 0
+                      ? Column(
+                          children: [
+                            Image.asset('assets/images/not_found_2.png', height: 200),
+                            const SizedBox(height: 5),
+                            const Text(
+                              "General statistics will appear here once you take attendances",
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        )
+                      : Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            const Text(
+                    'Attendance by day',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        fontSize: 16,
+                        color: Color.fromARGB(255, 6, 96, 138),
+                        fontWeight: FontWeight.bold),
+                  ),
+                            GridAppBarChart(
+                              chartData: chartData,
+                              chartLabels: chartLabels,
+                              startColor: Colors.blue,
+                              endColor: Colors.indigo,
+                            ),
+                            const SizedBox(height: 20),
+                            const Text(
+                              "Attendances by course unit",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                  fontSize: 16,
+                                  color: Color.fromARGB(255, 6, 96, 138),
+                                  fontWeight: FontWeight.bold),
+                            ),
+                            const SizedBox(height: 10),
+                            AppHorizontalBarChart(
+                                barData: convertToChartData(courseUnitStats)),
+                            const SizedBox(height: 10),
+                            OutlinedButton(
+                              onPressed: () => Navigator.of(context).pushNamed(
+                                  AppRouter.attendancePercentagesRoute,
+                                  arguments: {'course_stats': courseUnitStats}),
+                              child: const Text('View attendance percentages'),
+                            ),
+                          ],
+                        ),
+                ],
               ),
-              const Text("Attendances for today"),
-              ListView.builder(
-                shrinkWrap: true,
-                itemCount: todaysAttendances.length,
-                itemBuilder: (context, index) {
-                  var attendance = todaysAttendances[index];
-                  return AttendanceSummaryCard(
-                    courseUnit: attendance.courseUnit,
-                    timeSignedIn: attendance.timeSignedIn,
-                  );
-                },
-              ),
-              const SizedBox(height: 10),
-              //? Model for barData
-              //? {
-              //? String name;
-              //? Color color;
-              //? double value;
-              //? }
-              const Text('General Statistics'),
-              const SizedBox(height: 20),
-              const Text('Attendance by day'),
-              // AppBarChart(barData: barData),
-              GridAppBarChart(
-                  chartData: chartData,
-                  chartLabels: chartLabels,
-                  startColor: Colors.blue,
-                  endColor: Colors.indigo),
-            ],
-          );
-        }
-      },
+            );
+          }
+        },
+      ),
     );
   }
 }

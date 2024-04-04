@@ -7,7 +7,7 @@ import 'package:bio_attendance/services/exceptions.dart';
 import 'package:bio_attendance/models/role.dart';
 import 'package:bio_attendance/services/image_api_service.dart';
 import 'package:bio_attendance/services/local_storage.dart';
-import 'package:bio_attendance/utilities/helpers/date_utils.dart';
+import 'package:bio_attendance/utilities/helpers/stats_utils.dart';
 import 'package:bio_attendance/utilities/helpers/password_hash.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -380,6 +380,18 @@ class DatabaseService {
   Future<List<Attendance>> getStudentAttendances(String studentRegNo) async {
     QuerySnapshot querySnapshot = await _attendancesCollection
         .where('student_reg_no', isEqualTo: studentRegNo)
+        .get();
+
+    List<Attendance> attendances = querySnapshot.docs
+        .map((QueryDocumentSnapshot queryDocSnapshot) => Attendance.fromJSON(
+            queryDocSnapshot.data() as Map<String, dynamic>))
+        .toList();
+
+    return attendances;
+  }
+
+  Future<List<Attendance>> getAllAttendances() async {
+    QuerySnapshot querySnapshot = await _attendancesCollection
         .get();
 
     List<Attendance> attendances = querySnapshot.docs

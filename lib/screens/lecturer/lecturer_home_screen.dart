@@ -1,6 +1,5 @@
 import 'package:bio_attendance/router/app_router.dart';
 import 'package:bio_attendance/screens/lecturer/tabs/course_units_tab.dart';
-import 'package:bio_attendance/screens/lecturer/tabs/reports_tab.dart';
 import 'package:bio_attendance/screens/lecturer/tabs/class_locations_tab.dart';
 import 'package:bio_attendance/services/local_storage.dart';
 import 'package:flutter/material.dart';
@@ -24,12 +23,12 @@ class _LecturerHomeScreenState extends State<LecturerHomeScreen> {
 
 int _currentIndex = 0;
 
-  final _tabTitles = ['Course Units', 'Locations', 'Reports'];
+  final _tabTitles = ['Course Units', 'Locations'];
 
   final _tabPages = const [
     CourseUnitsTab(),
     ClassLocationsTab(),
-    ReportsTab(),
+    // ReportsTab(),
   ];
 
   final _bottomNavBarItems = const [
@@ -41,10 +40,10 @@ int _currentIndex = 0;
       icon: Icon(Icons.location_pin),
       label: 'Locations',
     ),
-    BottomNavigationBarItem(
-      icon: Icon(Icons.menu_book_rounded),
-      label: 'Reports',
-    ),
+    // BottomNavigationBarItem(
+    //   icon: Icon(Icons.menu_book_rounded),
+    //   label: 'Reports',
+    // ),
     BottomNavigationBarItem(
       icon: Icon(Icons.power_settings_new_rounded),
       label: 'Log Out',
