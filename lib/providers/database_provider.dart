@@ -263,6 +263,7 @@ class DatabaseProvider extends ChangeNotifier {
       throw GenericException();
     } finally {
       _isLoading = false;
+      notifyListeners();
     }
 
     return courseUnitStatistics;
@@ -277,12 +278,13 @@ class DatabaseProvider extends ChangeNotifier {
     try {
       studentAttendances =
           await _databaseService.getStudentAttendances(studentRegNo);
-    }catch (_) {
+    } catch (_) {
       print("A GENERIC EXCEPTION HAS OCCURRED!!!");
       print(_);
       throw GenericException();
     } finally {
       _isLoading = false;
+      notifyListeners();
     }
 
     return studentAttendances;
@@ -295,14 +297,14 @@ class DatabaseProvider extends ChangeNotifier {
     List<Attendance> attendances = [];
 
     try {
-      attendances =
-          await _databaseService.getAllAttendances();
-    }catch (_) {
+      attendances = await _databaseService.getAllAttendances();
+    } catch (_) {
       print("A GENERIC EXCEPTION HAS OCCURRED!!!");
       print(_);
       throw GenericException();
     } finally {
       _isLoading = false;
+      notifyListeners();
     }
 
     return attendances;
